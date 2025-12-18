@@ -68,7 +68,7 @@ export default function AGBPage() {
 
         <h2>§ 10 Schlussbestimmungen</h2>
         <p>
-          Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist Berlin, sofern Sie Kaufmann sind 
+          Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist Rostock, sofern Sie Kaufmann sind 
           oder keinen allgemeinen Gerichtsstand in Deutschland haben.
         </p>
         
