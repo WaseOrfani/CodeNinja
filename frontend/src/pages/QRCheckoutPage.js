@@ -167,6 +167,24 @@ export default function QRCheckoutPage() {
           <p className="text-purple-600 font-medium text-sm mb-4">Tisch {tableNumber}</p>
         )}
 
+        {/* QR Bonus Banner */}
+        {qrBonus && (
+          <div className="mb-4 p-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl text-white animate-slide-up" data-testid="qr-bonus-banner">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <Gift className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold">{qrBonus.bonus_name}</span>
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <p className="text-sm text-white/80">🎉 Dein QR-Bonus wird automatisch hinzugefügt!</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Upsell - only if cart < €25 */}
         <CheckoutUpsell items={items} cartTotal={cartTotal} />
 
