@@ -218,11 +218,6 @@ function QRProductCard({ product }) {
         <h3 className="font-semibold text-slate-900 text-sm truncate">{product.name}</h3>
         <div className="flex items-center justify-between mt-1">
           <span className="font-bold text-green-600 text-sm">ab €{lowestPrice.toFixed(2)}</span>
-          {product.is_halal && (
-            <Badge variant="secondary" className="bg-green-50 text-green-700 text-[8px] px-1">
-              Halal
-            </Badge>
-          )}
         </div>
       </div>
     </Link>
