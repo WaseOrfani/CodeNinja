@@ -35,9 +35,14 @@ const UPSELL_RULES = {
   ],
 };
 
-export const CheckoutUpsell = ({ items }) => {
+const UPSELL_THRESHOLD = 25; // Only show upsell if cart < €25
+
+export const CheckoutUpsell = ({ items, cartTotal }) => {
   const { addItem } = useCart();
   const [addedItems, setAddedItems] = useState(new Set());
+  
+  // Don't show upsell if cart is already above threshold
+  if (cartTotal >= UPSELL_THRESHOLD) return null;
 
   // Determine which upsells to show based on cart items
   const suggestedUpsells = useMemo(() => {
