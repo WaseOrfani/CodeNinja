@@ -98,7 +98,7 @@ export default function ContactPage() {
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="Max Mustermann"
+                    placeholder="Dein Name"
                     className="h-12 mt-1"
                     required
                     data-testid="contact-name-input"
