@@ -190,7 +190,7 @@ export default function CheckoutPage() {
                   name="customer_name"
                   value={formData.customer_name}
                   onChange={handleInputChange}
-                  placeholder="Max Mustermann"
+                  placeholder="Dein Name"
                   className="h-12 mt-1"
                   data-testid="checkout-name-input"
                 />
