@@ -123,6 +123,7 @@ class OrderCreate(BaseModel):
     payment_method: str  # "paypal" or "pickup"
     subtotal: float
     total: float
+    source: Optional[str] = "web"  # "web" or "qr"
 
 class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -133,6 +134,7 @@ class Order(BaseModel):
     pickup_time: str
     notes: str = ""
     payment_method: str
+    source: str = "web"  # "web" or "qr"
     subtotal: float
     total: float
     status: str = "pending"  # pending, paid, in_preparation, ready, picked_up, cancelled
