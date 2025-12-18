@@ -136,11 +136,18 @@ export default function AdminOrdersPage() {
                             </span>
                             <p className="text-xs text-slate-500">{formatDate(order.created_at)}</p>
                           </div>
-                          {order.source === 'qr' && (
-                            <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded">
-                              QR
-                            </span>
-                          )}
+                          <div className="flex flex-col gap-0.5">
+                            {order.source === 'qr' && (
+                              <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded">
+                                QR
+                              </span>
+                            )}
+                            {order.qr_bonus_applied && (
+                              <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded">
+                                BONUS
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="py-3 px-4">
