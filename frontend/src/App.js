@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import CookieBanner from "./components/CookieBanner";
 
 // Pages
 import HomePage from "./pages/HomePage";
@@ -61,6 +62,7 @@ function App() {
             </Route>
           </Routes>
           <Toaster position="top-center" richColors />
+          <CookieBanner />
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
