@@ -98,11 +98,18 @@ export const CheckoutUpsell = ({ items, cartTotal }) => {
 
   if (suggestedUpsells.length === 0) return null;
 
+  const remainingForThreshold = UPSELL_THRESHOLD - cartTotal;
+
   return (
     <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 mb-6 border border-green-100">
-      <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-        <span>✨</span> Dazu passt perfekt
-      </h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+          <span>✨</span> Dazu passt perfekt
+        </h3>
+        <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+          Noch €{remainingForThreshold.toFixed(2)} bis €{UPSELL_THRESHOLD}
+        </span>
+      </div>
       <div className="space-y-2">
         {suggestedUpsells.map((upsell) => {
           const isAdded = addedItems.has(upsell.id);
