@@ -331,7 +331,7 @@ def generate_order_email_html(order: dict, for_restaurant: bool = False) -> str:
                 
                 <hr style="margin:30px 0;border:none;border-top:1px solid #eee;">
                 <p style="color:#666;font-size:14px;">
-                    Fragen? Ruf uns an: +49 30 12345678<br>
+                    Fragen? Ruf uns an: +49 381 7704 – 0<br>
                     Bis gleich! 🍔
                 </p>
             </div>
