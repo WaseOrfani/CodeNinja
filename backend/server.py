@@ -201,25 +201,192 @@ async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# ============== EMAIL SERVICE (MOCK) ==============
+# ============== RATE LIMITING ==============
+
+def check_rate_limit(email: str) -> bool:
+    """Check if the email is rate limited. Returns True if allowed, False if blocked."""
+    now = time.time()
+    attempts = LOGIN_ATTEMPTS[email]
+    # Clean up old attempts
+    LOGIN_ATTEMPTS[email] = [t for t in attempts if now - t < LOCKOUT_DURATION]
+    
+    if len(LOGIN_ATTEMPTS[email]) >= MAX_LOGIN_ATTEMPTS:
+        return False
+    return True
+
+def record_failed_attempt(email: str):
+    """Record a failed login attempt."""
+    LOGIN_ATTEMPTS[email].append(time.time())
+
+def clear_attempts(email: str):
+    """Clear login attempts after successful login."""
+    LOGIN_ATTEMPTS[email] = []
+
+# ============== EMAIL SERVICE (RESEND) ==============
+
+def generate_order_email_html(order: dict, for_restaurant: bool = False) -> str:
+    """Generate HTML email for order confirmation."""
+    items_html = ""
+    for item in order.get('items', []):
+        extras_text = ""
+        if item.get('extras'):
+            extras_text = f"<br><small style='color:#666'>+ {', '.join(e.get('name', '') for e in item['extras'])}</small>"
+        items_html += f"""
+        <tr>
+            <td style="padding:8px;border-bottom:1px solid #eee;">{item.get('quantity', 1)}x {item.get('product_name', '')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">{item.get('variant', '')}{extras_text}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">€{item.get('total', 0):.2f}</td>
+        </tr>
+        """
+    
+    if for_restaurant:
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"></head>
+        <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+            <div style="background:#22c55e;color:white;padding:20px;text-align:center;">
+                <h1 style="margin:0;">🍔 Neue Bestellung!</h1>
+            </div>
+            <div style="padding:20px;background:#f8f8f8;">
+                <h2 style="color:#333;">Bestellung #{order['id'][:8].upper()}</h2>
+                <p><strong>Kunde:</strong> {order['customer_name']}</p>
+                <p><strong>Telefon:</strong> <a href="tel:{order['customer_phone']}">{order['customer_phone']}</a></p>
+                <p><strong>E-Mail:</strong> {order['customer_email']}</p>
+                <p><strong>Abholzeit:</strong> <span style="color:#22c55e;font-weight:bold;">{order['pickup_time']}</span></p>
+                <p><strong>Zahlung:</strong> {order['payment_method'].upper()}</p>
+                {f"<p style='background:#fff3cd;padding:10px;border-radius:5px;'><strong>Anmerkungen:</strong> {order['notes']}</p>" if order.get('notes') else ""}
+                
+                <table style="width:100%;border-collapse:collapse;margin-top:15px;">
+                    <thead>
+                        <tr style="background:#22c55e;color:white;">
+                            <th style="padding:10px;text-align:left;">Artikel</th>
+                            <th style="padding:10px;text-align:left;">Variante</th>
+                            <th style="padding:10px;text-align:right;">Preis</th>
+                        </tr>
+                    </thead>
+                    <tbody>{items_html}</tbody>
+                    <tfoot>
+                        <tr style="background:#333;color:white;">
+                            <td colspan="2" style="padding:10px;"><strong>GESAMT</strong></td>
+                            <td style="padding:10px;text-align:right;"><strong>€{order['total']:.2f}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </body>
+        </html>
+        """
+    else:
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"></head>
+        <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+            <div style="background:#0f172a;padding:20px;text-align:center;">
+                <h1 style="margin:0;color:white;">ORIA <span style="color:#22c55e;">FRESH</span></h1>
+            </div>
+            <div style="padding:30px;background:#fff;">
+                <h2 style="color:#22c55e;">✓ Bestellung bestätigt!</h2>
+                <p>Hallo {order['customer_name']},</p>
+                <p>vielen Dank für deine Bestellung! Wir bereiten alles frisch für dich zu.</p>
+                
+                <div style="background:#f1f5f9;padding:15px;border-radius:10px;margin:20px 0;">
+                    <p style="margin:5px 0;"><strong>Bestellnummer:</strong> #{order['id'][:8].upper()}</p>
+                    <p style="margin:5px 0;"><strong>Abholzeit:</strong> {order['pickup_time']}</p>
+                    <p style="margin:5px 0;"><strong>Adresse:</strong> Musterstraße 123, 12345 Berlin</p>
+                </div>
+                
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="border-bottom:2px solid #22c55e;">
+                            <th style="padding:10px;text-align:left;">Artikel</th>
+                            <th style="padding:10px;text-align:left;">Variante</th>
+                            <th style="padding:10px;text-align:right;">Preis</th>
+                        </tr>
+                    </thead>
+                    <tbody>{items_html}</tbody>
+                </table>
+                
+                <div style="margin-top:20px;text-align:right;">
+                    <p style="font-size:24px;font-weight:bold;color:#22c55e;">Gesamt: €{order['total']:.2f}</p>
+                </div>
+                
+                <hr style="margin:30px 0;border:none;border-top:1px solid #eee;">
+                <p style="color:#666;font-size:14px;">
+                    Fragen? Ruf uns an: +49 30 12345678<br>
+                    Bis gleich! 🍔
+                </p>
+            </div>
+            <div style="background:#f1f5f9;padding:15px;text-align:center;color:#666;font-size:12px;">
+                © {datetime.now().year} ORIA FRESH | <a href="https://oriafresh.de" style="color:#22c55e;">oriafresh.de</a>
+            </div>
+        </body>
+        </html>
+        """
 
 async def send_order_confirmation(order: dict):
-    """Mock email service - logs to console, can be replaced with Resend/SendGrid later"""
-    logger.info(f"📧 EMAIL SERVICE - Order Confirmation")
-    logger.info(f"To: {order['customer_email']}")
-    logger.info(f"Subject: Deine Bestellung bei ORIA FRESH #{order['id'][:8]}")
-    logger.info(f"Body: Hallo {order['customer_name']}, deine Bestellung ist eingegangen!")
-    logger.info(f"Abholzeit: {order['pickup_time']}")
-    logger.info(f"Gesamtbetrag: €{order['total']:.2f}")
-    # Store email log in DB for later review
-    await db.email_logs.insert_one({
-        "id": str(uuid.uuid4()),
-        "to": order['customer_email'],
-        "order_id": order['id'],
-        "type": "order_confirmation",
-        "sent_at": datetime.now(timezone.utc).isoformat(),
-        "status": "mocked"
-    })
+    """Send order confirmation email to customer and notification to restaurant."""
+    email_sent = False
+    
+    # Try to send via Resend if configured
+    if RESEND_AVAILABLE and RESEND_API_KEY:
+        try:
+            # Send to customer
+            customer_html = generate_order_email_html(order, for_restaurant=False)
+            customer_params = {
+                "from": SENDER_EMAIL,
+                "to": [order['customer_email']],
+                "subject": f"Deine Bestellung bei ORIA FRESH #{order['id'][:8].upper()}",
+                "html": customer_html
+            }
+            customer_result = await asyncio.to_thread(resend.Emails.send, customer_params)
+            logger.info(f"📧 Customer email sent: {customer_result.get('id')}")
+            
+            # Send to restaurant
+            restaurant_html = generate_order_email_html(order, for_restaurant=True)
+            restaurant_params = {
+                "from": SENDER_EMAIL,
+                "to": [RESTAURANT_EMAIL],
+                "subject": f"🍔 Neue Bestellung #{order['id'][:8].upper()} - {order['customer_name']}",
+                "html": restaurant_html
+            }
+            restaurant_result = await asyncio.to_thread(resend.Emails.send, restaurant_params)
+            logger.info(f"📧 Restaurant email sent: {restaurant_result.get('id')}")
+            
+            email_sent = True
+            
+            # Log successful email
+            await db.email_logs.insert_one({
+                "id": str(uuid.uuid4()),
+                "to": order['customer_email'],
+                "order_id": order['id'],
+                "type": "order_confirmation",
+                "sent_at": datetime.now(timezone.utc).isoformat(),
+                "status": "sent",
+                "customer_email_id": customer_result.get('id'),
+                "restaurant_email_id": restaurant_result.get('id')
+            })
+        except Exception as e:
+            logger.error(f"❌ Resend error: {str(e)}")
+    
+    # Fallback to mock if Resend not available or failed
+    if not email_sent:
+        logger.info(f"📧 EMAIL SERVICE (MOCK) - Order Confirmation")
+        logger.info(f"To: {order['customer_email']}")
+        logger.info(f"Subject: Deine Bestellung bei ORIA FRESH #{order['id'][:8]}")
+        logger.info(f"Body: Hallo {order['customer_name']}, deine Bestellung ist eingegangen!")
+        logger.info(f"Abholzeit: {order['pickup_time']}")
+        logger.info(f"Gesamtbetrag: €{order['total']:.2f}")
+        
+        await db.email_logs.insert_one({
+            "id": str(uuid.uuid4()),
+            "to": order['customer_email'],
+            "order_id": order['id'],
+            "type": "order_confirmation",
+            "sent_at": datetime.now(timezone.utc).isoformat(),
+            "status": "mocked"
+        })
 
 # ============== PAYPAL HELPERS ==============
 
