@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 
 class OriaFreshAPITester:
-    def __init__(self, base_url="https://oriafresh.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://foodmania.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
