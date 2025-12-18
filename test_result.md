@@ -101,3 +101,166 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  ORIA FRESH E-Commerce Food Ordering Platform - QR Marketing & Bonus System Implementation
+  Complete the QR Bonus feature that automatically applies a bonus (e.g., "Free Extra Sauce") 
+  to orders placed via QR code. Includes admin controls to enable/disable and configure the bonus.
+  Also fix Cookie Banner overlap issue and incorrect product images.
+
+backend:
+  - task: "QR Bonus Order Application"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implemented QR bonus logic in create_order endpoint. When source='qr' and qr_bonus.enabled=true in settings, bonus is automatically applied to order. Tested via curl - Order ID 6aab6929 shows qr_bonus_applied with name, value, and type."
+
+  - task: "QR Bonus Dashboard Stats"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added qr_bonus_orders_today count to admin dashboard endpoint. Counts orders where qr_bonus_applied is not null."
+
+  - task: "Settings QR Bonus Persistence"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "QRBonus model already existed. Added logic to ensure qr_bonus is always present in settings response. Admin can update via PUT /api/admin/settings."
+
+frontend:
+  - task: "Admin QR Bonus Settings UI"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/admin/AdminSettingsPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added QR-Bonus System card with toggle switch, bonus type dropdown (extra_sauce, free_drink, discount_10), bonus name input, value input, and preview. Purple-themed design with Gift icon."
+
+  - task: "Admin Dashboard QR Bonus Stats"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/admin/AdminDashboardPage.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added 'QR-Bonus vergeben' stat card showing qr_bonus_orders_today count. Uses pink color scheme with Gift icon."
+
+  - task: "Admin Orders QR BONUS Label"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/admin/AdminOrdersPage.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added green 'BONUS' badge next to 'QR' badge for orders with qr_bonus_applied. Also added purple QR-Bonus section in order detail dialog showing bonus name and value."
+
+  - task: "QR Checkout Bonus Banner"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/QRCheckoutPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added purple gradient banner at top of checkout showing the active bonus. Displays bonus name with Gift and Sparkles icons. Only shown when qr_bonus is enabled in settings."
+
+  - task: "Cookie Banner Overlap Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/CookieBanner.js"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Fixed banner positioning. Added detection for QR pages with higher bottom offset (bottom-36) to avoid overlap with fixed order button. Reduced padding and text size for more compact appearance. Updated z-index to 60."
+
+  - task: "Product Images Fix"
+    implemented: true
+    working: true
+    file: "Database update via script"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated 15 products in MongoDB with correct Unsplash food images. Burger, fries, salad, drinks all now show appropriate images."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "QR Bonus Order Application"
+    - "Admin QR Bonus Settings UI"
+    - "QR Checkout Bonus Banner"
+    - "Admin Orders QR BONUS Label"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Implemented complete QR Marketing & Bonus System:
+      
+      BACKEND CHANGES:
+      1. Modified /api/orders POST to apply bonus when source='qr' and bonus is enabled
+      2. Added qr_bonus_orders_today stat to /api/admin/dashboard
+      3. QRBonus model and settings persistence working
+      
+      FRONTEND CHANGES:
+      1. AdminSettingsPage: New QR-Bonus System card with toggle, type selection, name/value inputs
+      2. AdminDashboardPage: New 'QR-Bonus vergeben' stat card
+      3. AdminOrdersPage: BONUS label badge + QR-Bonus section in order details
+      4. QRCheckoutPage: Bonus banner showing active bonus to customer
+      5. CookieBanner: Fixed overlap issue with better positioning
+      
+      DATABASE UPDATES:
+      1. Updated qr_bonus field in settings collection
+      2. Fixed product images with correct food URLs
+      
+      TEST CREDENTIALS:
+      - Admin: admin@oriafresh.de / admin123
+      
+      TEST SCENARIOS:
+      1. Create QR order (source='qr') and verify qr_bonus_applied is set
+      2. Check dashboard shows QR-Bonus vergeben count
+      3. Verify orders page shows QR + BONUS labels
+      4. Test settings page - toggle bonus, change type, save
+      5. Verify QR checkout shows bonus banner when enabled
