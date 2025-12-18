@@ -30,8 +30,21 @@ export default function AdminSettingsPage() {
       { day: 'Freitag', open: '11:00', close: '23:00', is_closed: false },
       { day: 'Samstag', open: '12:00', close: '23:00', is_closed: false },
       { day: 'Sonntag', open: '12:00', close: '21:00', is_closed: false },
-    ]
+    ],
+    qr_bonus: {
+      enabled: true,
+      bonus_type: 'extra_sauce',
+      bonus_name: 'Gratis Extra Sauce',
+      bonus_value: 0.80
+    }
   });
+
+  // Bonus type options
+  const bonusTypes = [
+    { value: 'extra_sauce', label: 'Gratis Extra Sauce', defaultName: 'Gratis Extra Sauce', defaultValue: 0.80 },
+    { value: 'free_drink', label: 'Gratis Getränk', defaultName: 'Gratis Softdrink', defaultValue: 2.90 },
+    { value: 'discount_10', label: '10% Rabatt', defaultName: '10% QR-Rabatt', defaultValue: 0 },
+  ];
 
   useEffect(() => {
     fetchSettings();
