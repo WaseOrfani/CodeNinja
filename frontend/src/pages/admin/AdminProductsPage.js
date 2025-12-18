@@ -294,6 +294,13 @@ export default function AdminProductsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch 
+                    checked={formData.is_featured}
+                    onCheckedChange={(checked) => setFormData({...formData, is_featured: checked})}
+                  />
+                  <Label className="text-orange-600 font-medium">⭐ Featured</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch 
                     checked={formData.is_active}
                     onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
                   />
