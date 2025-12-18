@@ -556,10 +556,35 @@ async def get_order_status(order_id: str):
 # ============== ADMIN AUTH ROUTES ==============
 
 @api_router.post("/admin/login", response_model=Token)
-async def admin_login(login_data: AdminLogin):
+async def admin_login(login_data: AdminLogin, request: Request):
+    # Rate limiting check
+    if not check_rate_limit(login_data.email):
+        remaining_time = LOCKOUT_DURATION - (time.time() - LOGIN_ATTEMPTS[login_data.email][0])
+        raise HTTPException(
+            status_code=429, 
+            detail=f"Zu viele Anmeldeversuche. Bitte warte {int(remaining_time/60)} Minuten."
+        )
+    
     admin = await db.admins.find_one({"email": login_data.email}, {"_id": 0})
     if not admin or not verify_password(login_data.password, admin['password']):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        record_failed_attempt(login_data.email)
+        attempts_left = MAX_LOGIN_ATTEMPTS - len(LOGIN_ATTEMPTS[login_data.email])
+        raise HTTPException(
+            status_code=401, 
+            detail=f"Ungültige Anmeldedaten. Noch {attempts_left} Versuche übrig."
+        )
+    
+    # Clear attempts on successful login
+    clear_attempts(login_data.email)
+    
+    # Log successful login
+    await db.login_logs.insert_one({
+        "id": str(uuid.uuid4()),
+        "email": login_data.email,
+        "ip": request.client.host if request.client else "unknown",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "success": True
+    })
     
     access_token = create_access_token(data={"sub": admin['email']})
     refresh_token = create_refresh_token(data={"sub": admin['email']})
