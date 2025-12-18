@@ -779,13 +779,18 @@ async def admin_dashboard(admin: dict = Depends(get_current_admin)):
     qr_revenue = sum(o.get('total', 0) for o in qr_orders if o.get('status') not in ['cancelled', 'pending'])
     qr_percentage = round((qr_count / total_orders * 100), 1) if total_orders > 0 else 0
     
+    # QR Bonus Tracking
+    qr_bonus_orders = [o for o in qr_orders if o.get('qr_bonus_applied')]
+    qr_bonus_count = len(qr_bonus_orders)
+    
     return {
         "orders_today": total_orders,
         "revenue_today": total_revenue,
         "status_breakdown": status_counts,
         "qr_orders_today": qr_count,
         "qr_revenue_today": qr_revenue,
-        "qr_percentage": qr_percentage
+        "qr_percentage": qr_percentage,
+        "qr_bonus_orders_today": qr_bonus_count
     }
 
 # ============== ADMIN SETTINGS ROUTES ==============
