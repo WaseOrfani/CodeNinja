@@ -88,6 +88,7 @@ class ProductCreate(BaseModel):
     extras: List[ProductExtra] = []
     is_halal: bool = False
     is_bestseller: bool = False
+    is_featured: bool = False  # Monthly Drop / Featured Item
     is_active: bool = True
 
 class Product(ProductCreate):
