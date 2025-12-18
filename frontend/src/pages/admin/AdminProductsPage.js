@@ -107,6 +107,7 @@ export default function AdminProductsPage() {
       extras: product.extras || [],
       is_halal: product.is_halal,
       is_bestseller: product.is_bestseller,
+      is_featured: product.is_featured || false,
       is_active: product.is_active
     });
     setDialogOpen(true);
@@ -123,6 +124,7 @@ export default function AdminProductsPage() {
       variants: [{ name: 'Single', price: 0 }],
       extras: [],
       is_halal: false,
+      is_featured: false,
       is_bestseller: false,
       is_active: true
     });
