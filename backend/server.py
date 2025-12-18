@@ -508,6 +508,21 @@ async def get_settings():
 
 @api_router.post("/orders")
 async def create_order(order_data: OrderCreate):
+    # Check for QR bonus application
+    qr_bonus_data = None
+    if order_data.source == 'qr':
+        # Get current settings to check if QR bonus is enabled
+        settings = await db.settings.find_one({}, {"_id": 0})
+        qr_bonus_settings = settings.get('qr_bonus', {}) if settings else {}
+        
+        if qr_bonus_settings.get('enabled', False):
+            qr_bonus_data = {
+                'name': qr_bonus_settings.get('bonus_name', 'Gratis Extra Sauce'),
+                'value': qr_bonus_settings.get('bonus_value', 0.80),
+                'type': qr_bonus_settings.get('bonus_type', 'extra_sauce')
+            }
+            logger.info(f"🎁 QR Bonus applied: {qr_bonus_data['name']}")
+    
     order = Order(
         items=order_data.items,
         customer_name=order_data.customer_name,
@@ -518,7 +533,8 @@ async def create_order(order_data: OrderCreate):
         payment_method=order_data.payment_method,
         subtotal=order_data.subtotal,
         total=order_data.total,
-        source=order_data.source or "web"
+        source=order_data.source or "web",
+        qr_bonus_applied=qr_bonus_data
     )
     
     order_dict = order.model_dump()
