@@ -53,7 +53,7 @@ export default function WiderrufPage() {
         <h2>Stornierung vor Zubereitung</h2>
         <p>
           Sollten Sie Ihre Bestellung vor Beginn der Zubereitung stornieren wollen, kontaktieren Sie uns bitte 
-          umgehend telefonisch unter +49 30 12345678. Wir werden versuchen, Ihre Stornierung zu berücksichtigen.
+          umgehend telefonisch unter +49 381 7704 – 0. Wir werden versuchen, Ihre Stornierung zu berücksichtigen.
         </p>
 
         <h2>Muster-Widerrufsformular</h2>
