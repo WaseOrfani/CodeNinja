@@ -55,10 +55,10 @@ export default function AdminDashboardPage() {
       color: 'bg-purple-50 text-purple-600'
     },
     { 
-      title: 'Abholbereit', 
-      value: dashboard?.status_breakdown?.ready || 0, 
-      icon: CheckCircle,
-      color: 'bg-yellow-50 text-yellow-600'
+      title: 'QR-Bonus vergeben', 
+      value: dashboard?.qr_bonus_orders_today || 0, 
+      icon: Gift,
+      color: 'bg-pink-50 text-pink-600'
     },
   ];
 
