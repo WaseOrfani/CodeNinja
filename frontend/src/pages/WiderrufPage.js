@@ -62,7 +62,7 @@ export default function WiderrufPage() {
         </p>
         <div className="bg-slate-50 p-6 rounded-lg">
           <p>
-            An: ORIA FRESH GmbH, Musterstraße 123, 12345 Berlin, E-Mail: info@oriafresh.de
+            An: Hotel Ziegenkrug GmbH (ORIA FRESH), Kirchenplatz 9, 18119 Rostock-Warnemünde, E-Mail: info@oriafresh.de
           </p>
           <p>
             Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über den Kauf der 
