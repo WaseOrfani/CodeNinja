@@ -51,10 +51,14 @@ export default function ShopPage() {
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
+      // Custom sort: Featured first, then Bestsellers, then by selected sort
       if (sortBy === 'price-low') return Math.min(...a.variants.map(v => v.price)) - Math.min(...b.variants.map(v => v.price));
       if (sortBy === 'price-high') return Math.min(...b.variants.map(v => v.price)) - Math.min(...a.variants.map(v => v.price));
-      if (sortBy === 'bestseller') return (b.is_bestseller ? 1 : 0) - (a.is_bestseller ? 1 : 0);
-      return 0;
+      
+      // Default: Featured → Bestseller → Rest
+      const aScore = (a.is_featured ? 100 : 0) + (a.is_bestseller ? 10 : 0);
+      const bScore = (b.is_featured ? 100 : 0) + (b.is_bestseller ? 10 : 0);
+      return bScore - aScore;
     });
 
   const handleCategoryClick = (categoryName) => {
