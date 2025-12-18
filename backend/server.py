@@ -500,7 +500,8 @@ async def create_order(order_data: OrderCreate):
         notes=order_data.notes or "",
         payment_method=order_data.payment_method,
         subtotal=order_data.subtotal,
-        total=order_data.total
+        total=order_data.total,
+        source=order_data.source or "web"
     )
     
     order_dict = order.model_dump()
