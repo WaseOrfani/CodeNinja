@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
 import { useAuth } from '../../context/AuthContext';
-import { ShoppingBag, Euro, Clock, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Euro, Clock, CheckCircle, QrCode } from 'lucide-react';
 import axios from 'axios';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -48,16 +49,16 @@ export default function AdminDashboardPage() {
       color: 'bg-green-50 text-green-600'
     },
     { 
-      title: 'In Bearbeitung', 
-      value: dashboard?.status_breakdown?.in_preparation || 0, 
-      icon: Clock,
-      color: 'bg-yellow-50 text-yellow-600'
+      title: 'QR-Bestellungen', 
+      value: `${dashboard?.qr_orders_today || 0} (${dashboard?.qr_percentage || 0}%)`, 
+      icon: QrCode,
+      color: 'bg-purple-50 text-purple-600'
     },
     { 
       title: 'Abholbereit', 
       value: dashboard?.status_breakdown?.ready || 0, 
       icon: CheckCircle,
-      color: 'bg-purple-50 text-purple-600'
+      color: 'bg-yellow-50 text-yellow-600'
     },
   ];
 
