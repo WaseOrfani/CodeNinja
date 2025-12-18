@@ -5,34 +5,28 @@ import { useCart } from '../context/CartContext';
 
 // Upsell-Regeln: Welche Produkte triggern welche Extras
 const UPSELL_RULES = {
-  // Burger-Kategorien -> Saucen, Extras
-  'Smash Burger': [
+  // Burger -> Premium Saucen & Extras
+  'Burger': [
     { id: 'upsell-cheese', name: 'Extra Käse', price: 1.50, emoji: '🧀' },
-    { id: 'upsell-truffle', name: 'Truffle Mayo', price: 1.50, emoji: '🥫' },
-    { id: 'upsell-guac', name: 'Guacamole', price: 1.50, emoji: '🥑' },
-  ],
-  // Chicken -> Sauce, Extras
-  'Chicken & Veggie': [
-    { id: 'upsell-ranch', name: 'Ranch Sauce', price: 1.50, emoji: '🥫' },
-    { id: 'upsell-cheese', name: 'Extra Käse', price: 1.50, emoji: '🧀' },
-    { id: 'upsell-jalapeno', name: 'Jalapeño Mayo', price: 1.50, emoji: '🌶️' },
+    { id: 'upsell-truffle', name: 'Truffle Luxe', price: 1.50, emoji: '🥫' },
+    { id: 'upsell-avocado', name: 'Avocado Dream', price: 1.50, emoji: '🥑' },
   ],
   // Bowls -> Protein, Dressing
-  'Bowls & Salads': [
+  'Bowls': [
     { id: 'upsell-protein', name: 'Extra Protein', price: 3.00, emoji: '🍗' },
-    { id: 'upsell-guac', name: 'Guacamole', price: 1.50, emoji: '🥑' },
+    { id: 'upsell-avocado', name: 'Avocado Dream', price: 1.50, emoji: '🥑' },
+    { id: 'upsell-ranch', name: 'Green Ranch', price: 1.50, emoji: '🥫' },
   ],
-  // Sides -> Cheese Dip
-  'Sides': [
-    { id: 'upsell-cheese-dip', name: 'Cheese Sauce Dip', price: 3.90, emoji: '🧀' },
-    { id: 'upsell-truffle', name: 'Truffle Mayo', price: 1.50, emoji: '🥫' },
+  // Salate -> Dressing
+  'Salate': [
+    { id: 'upsell-ranch', name: 'Green Ranch', price: 1.50, emoji: '🥫' },
+    { id: 'upsell-avocado', name: 'Avocado Dream', price: 1.50, emoji: '🥑' },
   ],
-  // Kids -> keine Upsells
-  'Kids': [],
-  // Getränke Empfehlungen
+  // Getränke Empfehlungen (default)
   'default': [
-    { id: 'upsell-limo', name: 'Hausgemachte Limo', price: 3.90, emoji: '🍋' },
-    { id: 'upsell-schorle', name: 'Schorle', price: 4.70, emoji: '🍎' },
+    { id: 'upsell-citrus', name: 'Citrus Glow', price: 3.90, emoji: '🍋' },
+    { id: 'upsell-raspberry', name: 'Raspberry Spark', price: 4.70, emoji: '🍓' },
+    { id: 'upsell-cheese-dip', name: 'Golden Cheese Dip', price: 3.90, emoji: '🧀' },
   ],
 };
 
