@@ -56,8 +56,9 @@ export default function ContactPage() {
                   <MapPin className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-900">Adresse</h3>
-                  <p className="text-slate-500">Musterstraße 123, 12345 Berlin</p>
+                  <h3 className="font-semibold text-slate-900">Standort ORIA FRESH</h3>
+                  <p className="text-slate-500">Kirchenplatz 9</p>
+                  <p className="text-slate-500">18119 Rostock-Warnemünde</p>
                 </div>
               </div>
 
@@ -67,8 +68,8 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-900">Telefon</h3>
-                  <a href="tel:+493012345678" className="text-slate-500 hover:text-green-600">
-                    +49 30 12345678
+                  <a href="tel:+493817704-0" className="text-slate-500 hover:text-green-600">
+                    +49 381 7704 – 0
                   </a>
                 </div>
               </div>
