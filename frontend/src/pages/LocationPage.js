@@ -137,7 +137,7 @@ export default function LocationPage() {
               <div className="text-center">
                 <MapPin className="w-12 h-12 text-green-600 mx-auto mb-4" />
                 <p className="text-slate-600 font-medium">ORIA FRESH</p>
-                <p className="text-slate-500 text-sm">Berlin</p>
+                <p className="text-slate-500 text-sm">Rostock-Warnemünde</p>
               </div>
             </div>
           </div>
