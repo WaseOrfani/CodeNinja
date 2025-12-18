@@ -158,7 +158,7 @@ export default function HomePage() {
                   Besuch uns!
                 </h2>
                 <p className="text-slate-400 mt-4 text-lg">
-                  {settings?.address || 'Musterstraße 123, 12345 Berlin'}
+                  Kirchenplatz 9, 18119 Rostock-Warnemünde
                 </p>
                 <div className="mt-6 space-y-2">
                   {settings?.opening_hours?.slice(0, 3).map((hour, i) => (
