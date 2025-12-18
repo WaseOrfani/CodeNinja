@@ -311,7 +311,7 @@ def generate_order_email_html(order: dict, for_restaurant: bool = False) -> str:
                 <div style="background:#f1f5f9;padding:15px;border-radius:10px;margin:20px 0;">
                     <p style="margin:5px 0;"><strong>Bestellnummer:</strong> #{order['id'][:8].upper()}</p>
                     <p style="margin:5px 0;"><strong>Abholzeit:</strong> {order['pickup_time']}</p>
-                    <p style="margin:5px 0;"><strong>Adresse:</strong> Musterstraße 123, 12345 Berlin</p>
+                    <p style="margin:5px 0;"><strong>Adresse:</strong> Kirchenplatz 9, 18119 Rostock-Warnemünde</p>
                 </div>
                 
                 <table style="width:100%;border-collapse:collapse;">
