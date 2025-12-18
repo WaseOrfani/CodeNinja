@@ -31,6 +31,7 @@ export default function AdminProductsPage() {
     extras: [],
     is_halal: false,
     is_bestseller: false,
+    is_featured: false,
     is_active: true
   });
 
