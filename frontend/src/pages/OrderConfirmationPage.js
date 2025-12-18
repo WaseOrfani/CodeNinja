@@ -64,7 +64,7 @@ export default function OrderConfirmationPage() {
             <MapPin className="w-5 h-5 text-green-600 mt-0.5" />
             <div>
               <p className="font-medium text-slate-900">Abholadresse</p>
-              <p className="text-slate-500">{settings?.address || 'Musterstraße 123, 12345 Berlin'}</p>
+              <p className="text-slate-500">Kirchenplatz 9, 18119 Rostock-Warnemünde</p>
             </div>
           </div>
           
@@ -80,7 +80,7 @@ export default function OrderConfirmationPage() {
             <Phone className="w-5 h-5 text-green-600 mt-0.5" />
             <div>
               <p className="font-medium text-slate-900">Fragen?</p>
-              <p className="text-slate-500">{settings?.phone || '+49 30 12345678'}</p>
+              <p className="text-slate-500">+49 381 7704 – 0</p>
             </div>
           </div>
         </div>
