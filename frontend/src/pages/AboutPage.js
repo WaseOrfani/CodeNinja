@@ -58,8 +58,8 @@ export default function AboutPage() {
           
           {/* Quote */}
           <div className="mt-12 p-8 bg-green-50 rounded-2xl border-l-4 border-green-500">
-            <p className="text-2xl font-bold text-green-900 italic">
-              "Oria ist mehr als nur ein Burger."
+            <p className="text-2xl font-bold text-green-900">
+              ORIA FRESH – Reduziert auf das Wesentliche.
             </p>
           </div>
         </div>
