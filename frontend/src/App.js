@@ -23,6 +23,7 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import AdminChangePasswordPage from "./pages/admin/AdminChangePasswordPage";
 
 // Layout
 import MainLayout from "./layouts/MainLayout";
@@ -59,6 +60,7 @@ function App() {
               <Route path="/admin/products" element={<AdminProductsPage />} />
               <Route path="/admin/orders" element={<AdminOrdersPage />} />
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
+              <Route path="/admin/password" element={<AdminChangePasswordPage />} />
             </Route>
           </Routes>
           <Toaster position="top-center" richColors />
