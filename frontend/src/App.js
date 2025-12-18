@@ -24,6 +24,7 @@ import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminChangePasswordPage from "./pages/admin/AdminChangePasswordPage";
+import AdminQRPage from "./pages/admin/AdminQRPage";
 
 // QR Order Pages
 import QREntryPage from "./pages/QREntryPage";
@@ -75,6 +76,7 @@ function App() {
               <Route path="/admin/orders" element={<AdminOrdersPage />} />
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
               <Route path="/admin/password" element={<AdminChangePasswordPage />} />
+              <Route path="/admin/qr" element={<AdminQRPage />} />
             </Route>
           </Routes>
           <Toaster position="top-center" richColors />
