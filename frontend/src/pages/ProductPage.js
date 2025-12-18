@@ -134,28 +134,44 @@ export default function ProductPage() {
           <div className="mt-6">
             <h3 className="font-semibold text-slate-900 mb-3">Variante wählen</h3>
             <div className="space-y-2">
-              {product.variants.map((variant, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedVariant(variant)}
-                  className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                    selectedVariant?.name === variant.name
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                  data-testid={`variant-${variant.name}`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-medium text-slate-900">{variant.name}</span>
-                      {variant.includes && (
-                        <p className="text-sm text-slate-500 mt-0.5">{variant.includes}</p>
-                      )}
+              {product.variants.map((variant, index) => {
+                const isMenu = variant.name.includes('MENÜ') || variant.name.includes('Menü');
+                const isSelected = selectedVariant?.name === variant.name;
+                
+                return (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedVariant(variant)}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all relative ${
+                      isSelected
+                        ? 'border-green-500 bg-green-50'
+                        : isMenu 
+                          ? 'border-orange-200 bg-orange-50/50 hover:border-orange-300'
+                          : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                    data-testid={`variant-${variant.name}`}
+                  >
+                    {isMenu && (
+                      <span className="absolute -top-2 right-3 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                        EMPFOHLEN
+                      </span>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className={`font-medium ${isMenu ? 'text-orange-900' : 'text-slate-900'}`}>
+                          {variant.name}
+                        </span>
+                        {variant.includes && (
+                          <p className="text-sm text-slate-500 mt-0.5">{variant.includes}</p>
+                        )}
+                      </div>
+                      <span className={`font-bold ${isMenu ? 'text-orange-600' : 'text-green-600'}`}>
+                        €{variant.price.toFixed(2)}
+                      </span>
                     </div>
-                    <span className="font-bold text-green-600">€{variant.price.toFixed(2)}</span>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
