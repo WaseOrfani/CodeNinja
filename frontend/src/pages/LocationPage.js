@@ -63,11 +63,12 @@ export default function LocationPage() {
                   <MapPin className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-slate-900 text-lg mb-2">Adresse</h2>
-                  <p className="text-slate-600">{settings?.address || 'Musterstraße 123'}</p>
-                  <p className="text-slate-600">12345 Berlin</p>
+                  <h2 className="font-semibold text-slate-900 text-lg mb-2">Standort ORIA FRESH</h2>
+                  <p className="text-slate-600">Kirchenplatz 9</p>
+                  <p className="text-slate-600">18119 Rostock-Warnemünde</p>
+                  <p className="text-slate-600">Deutschland</p>
                   <a 
-                    href="https://maps.google.com" 
+                    href="https://maps.google.com/?q=Kirchenplatz+9,+18119+Rostock-Warnemünde" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-green-600 hover:text-green-700 text-sm font-medium inline-flex items-center gap-1 mt-3"
@@ -85,14 +86,14 @@ export default function LocationPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-green-600" />
-                  <a href={`tel:${settings?.phone || '+49 30 12345678'}`} className="text-slate-600 hover:text-green-600">
-                    {settings?.phone || '+49 30 12345678'}
+                  <a href="tel:+4938177040" className="text-slate-600 hover:text-green-600">
+                    +49 381 7704 – 0
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-green-600" />
-                  <a href={`mailto:${settings?.email || 'info@oriafresh.de'}`} className="text-slate-600 hover:text-green-600">
-                    {settings?.email || 'info@oriafresh.de'}
+                  <a href="mailto:info@oriafresh.de" className="text-slate-600 hover:text-green-600">
+                    info@oriafresh.de
                   </a>
                 </div>
               </div>
