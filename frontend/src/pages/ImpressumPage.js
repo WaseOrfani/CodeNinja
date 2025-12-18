@@ -8,46 +8,52 @@ export default function ImpressumPage() {
       <div className="prose prose-slate max-w-none">
         <h2>Angaben gemäß § 5 TMG</h2>
         <p>
-          ORIA FRESH GmbH<br />
-          Musterstraße 123<br />
-          12345 Berlin
+          <strong>Hotel Ziegenkrug GmbH</strong>
+        </p>
+        
+        <p>
+          <strong>Hauptsitz:</strong><br />
+          Rostocker Straße 22<br />
+          18069 Lambrechtshagen / OT Sievershagen<br />
+          Deutschland
+        </p>
+        
+        <p>
+          <strong>Standort ORIA FRESH:</strong><br />
+          Kirchenplatz 9<br />
+          18119 Rostock-Warnemünde<br />
+          Deutschland
         </p>
 
         <h2>Kontakt</h2>
         <p>
-          Telefon: +49 30 12345678<br />
-          E-Mail: info@oriafresh.de
+          Telefon: +49 381 7704 – 0<br />
+          Fax: +49 381 7697467<br />
+          E-Mail: <a href="mailto:info@oriafresh.de" className="text-green-600">info@oriafresh.de</a>
         </p>
 
         <h2>Vertreten durch</h2>
         <p>
-          Geschäftsführer: Max Mustermann
+          Abdul Wase Orfani
         </p>
 
         <h2>Registereintrag</h2>
         <p>
-          Eintragung im Handelsregister.<br />
-          Registergericht: Amtsgericht Berlin-Charlottenburg<br />
-          Registernummer: HRB 123456
+          Eintragung im Handelsregister<br />
+          Registergericht: Amtsgericht Rostock<br />
+          Registernummer: HRB 11936
         </p>
 
         <h2>Umsatzsteuer-ID</h2>
         <p>
           Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br />
-          DE123456789
-        </p>
-
-        <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-        <p>
-          Max Mustermann<br />
-          Musterstraße 123<br />
-          12345 Berlin
+          DE276563880
         </p>
 
         <h2>Streitschlichtung</h2>
         <p>
           Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: 
-          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-green-600">
+          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-green-600 ml-1">
             https://ec.europa.eu/consumers/odr/
           </a>
         </p>

@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { ArrowRight, Leaf, Heart, Users, Award } from 'lucide-react';
+import { ArrowRight, Target, Sparkles, BarChart3, TrendingUp } from 'lucide-react';
 
 export default function AboutPage() {
   const values = [
-    { icon: Leaf, title: 'Frische Zutaten', desc: 'Wir verwenden nur die frischesten und hochwertigsten Zutaten für unsere Gerichte.' },
-    { icon: Heart, title: 'Mit Liebe gemacht', desc: 'Jedes Gericht wird mit Leidenschaft und Sorgfalt zubereitet.' },
-    { icon: Users, title: 'Familie & Community', desc: 'Wir sind mehr als ein Restaurant - wir sind eine Familie.' },
-    { icon: Award, title: 'Qualität zuerst', desc: 'Keine Kompromisse bei Geschmack und Qualität.' },
+    { icon: Target, title: 'Fokus auf das Wesentliche', desc: 'Ehrliche Produkte, klare Strukturen und kompromisslose Qualität.' },
+    { icon: Sparkles, title: 'Perfektioniert', desc: 'Jedes Produkt wird so lange entwickelt, bis es gleichbleibend gut ist.' },
+    { icon: BarChart3, title: 'Standardisierte Abläufe', desc: 'Hochwertige Zutaten und ein klar definiertes Geschmackserlebnis.' },
+    { icon: TrendingUp, title: 'Skalierbar', desc: 'Ein Konzept, das heute überzeugt und morgen wachsen kann.' },
   ];
 
   return (
@@ -16,7 +16,7 @@ export default function AboutPage() {
       <section className="relative h-[50vh] overflow-hidden">
         <img 
           src="https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg"
-          alt="ORIA FRESH Team"
+          alt="ORIA FRESH"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -31,22 +31,35 @@ export default function AboutPage() {
       {/* Story */}
       <section className="py-16 px-4">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-6">
-            Fresh Food. Real Taste.
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-8">
+            Oria ist mehr als nur ein Burger.
           </h2>
-          <div className="prose prose-lg text-slate-600">
+          <div className="prose prose-lg text-slate-600 space-y-6">
             <p>
-              ORIA FRESH wurde 2024 in Berlin gegründet mit einer einfachen Mission: 
-              Leckeres, frisches und qualitativ hochwertiges Fast Food für jeden zugänglich zu machen.
+              Oria wurde aus dem Wunsch heraus gegründet, etwas Neues zu schaffen: 
+              ein Gastronomiekonzept, das sich auf das Wesentliche konzentriert – ehrliche 
+              Produkte, klare Strukturen und kompromisslose Qualität.
             </p>
             <p>
-              Unsere Smash Burger werden auf Bestellung zubereitet - jeder Patty wird frisch gesmasht 
-              und mit den besten Zutaten kombiniert. Unsere Bowls und Salate sind perfekt für alle, 
-              die gesund und lecker essen möchten.
+              Unsere Speisekarte ist bewusst schlank gehalten. Jedes Produkt wird so lange 
+              entwickelt und perfektioniert, bis es jederzeit und an jedem Standort 
+              gleichbleibend gut ist.
             </p>
             <p>
-              Bei uns steht Qualität an erster Stelle. Wir arbeiten nur mit ausgewählten Lieferanten 
-              zusammen und bieten zertifizierte Halal-Optionen für unsere Gäste.
+              Was Oria besonders macht, ist die Art, wie wir arbeiten: standardisierte Abläufe, 
+              hochwertige Zutaten und ein klar definiertes Geschmackserlebnis. So stellen wir 
+              sicher, dass Oria an jedem Standort wiedererkennbar bleibt.
+            </p>
+            <p>
+              Auf diese Weise entsteht ein Konzept, das nicht nur heute überzeugt, 
+              sondern auch morgen wachsen kann.
+            </p>
+          </div>
+          
+          {/* Quote */}
+          <div className="mt-12 p-8 bg-green-50 rounded-2xl border-l-4 border-green-500">
+            <p className="text-2xl font-bold text-green-900 italic">
+              "Oria ist mehr als nur ein Burger."
             </p>
           </div>
         </div>
@@ -56,7 +69,7 @@ export default function AboutPage() {
       <section className="py-16 px-4 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 text-center mb-12">
-            Unsere Werte
+            Unsere Philosophie
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value, index) => (
