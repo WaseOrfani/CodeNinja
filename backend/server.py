@@ -611,6 +611,34 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(secu
 async def get_admin_me(admin: dict = Depends(get_current_admin)):
     return {"email": admin['email'], "name": admin['name']}
 
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+@api_router.post("/admin/change-password")
+async def change_admin_password(data: PasswordChange, admin: dict = Depends(get_current_admin)):
+    # Verify current password
+    stored_admin = await db.admins.find_one({"email": admin['email']}, {"_id": 0})
+    if not verify_password(data.current_password, stored_admin['password']):
+        raise HTTPException(status_code=401, detail="Aktuelles Passwort ist falsch")
+    
+    # Validate new password strength
+    if len(data.new_password) < 12:
+        raise HTTPException(status_code=400, detail="Passwort muss mindestens 12 Zeichen haben")
+    if not any(c.isupper() for c in data.new_password):
+        raise HTTPException(status_code=400, detail="Passwort muss mindestens einen Großbuchstaben enthalten")
+    if not any(c.isdigit() for c in data.new_password):
+        raise HTTPException(status_code=400, detail="Passwort muss mindestens eine Zahl enthalten")
+    
+    # Update password
+    new_hash = get_password_hash(data.new_password)
+    await db.admins.update_one(
+        {"email": admin['email']},
+        {"$set": {"password": new_hash}}
+    )
+    
+    return {"status": "success", "message": "Passwort erfolgreich geändert"}
+
 # ============== ADMIN PRODUCT ROUTES ==============
 
 @api_router.get("/admin/products", response_model=List[dict])
