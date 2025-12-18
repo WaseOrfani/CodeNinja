@@ -1117,8 +1117,8 @@ async def seed_database():
         ],
         "pickup_slots": ["sofort", "15 min", "30 min", "45 min", "60 min"],
         "restaurant_name": "ORIA FRESH",
-        "address": "Musterstraße 123, 12345 Berlin",
-        "phone": "+49 30 12345678",
+        "address": "Kirchenplatz 9, 18119 Rostock-Warnemünde",
+        "phone": "+49 381 7704 – 0",
         "email": "info@oriafresh.de"
     }
     await db.settings.insert_one(settings)
