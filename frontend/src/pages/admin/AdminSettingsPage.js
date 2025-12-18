@@ -258,6 +258,110 @@ export default function AdminSettingsPage() {
           </p>
         </CardContent>
       </Card>
+
+      {/* QR Bonus Settings */}
+      <Card className="border-purple-100 bg-purple-50/30">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Gift className="w-5 h-5 text-purple-600" />
+            QR-Bonus System
+          </CardTitle>
+          <CardDescription>
+            Automatischer Bonus für Bestellungen über QR-Code
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Enable/Disable Toggle */}
+          <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-purple-100">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                settings.qr_bonus?.enabled ? 'bg-purple-100' : 'bg-slate-100'
+              }`}>
+                <QrCode className={`w-5 h-5 ${settings.qr_bonus?.enabled ? 'text-purple-600' : 'text-slate-400'}`} />
+              </div>
+              <div>
+                <p className="font-medium text-slate-900">QR-Bonus aktivieren</p>
+                <p className="text-sm text-slate-500">
+                  {settings.qr_bonus?.enabled 
+                    ? 'Kunden erhalten Bonus bei QR-Bestellung' 
+                    : 'QR-Bonus ist deaktiviert'}
+                </p>
+              </div>
+            </div>
+            <Switch 
+              checked={settings.qr_bonus?.enabled || false}
+              onCheckedChange={(checked) => updateQRBonus('enabled', checked)}
+              data-testid="qr-bonus-toggle"
+            />
+          </div>
+
+          {settings.qr_bonus?.enabled && (
+            <>
+              {/* Bonus Type Selection */}
+              <div>
+                <Label className="text-slate-700">Bonus-Typ</Label>
+                <Select 
+                  value={settings.qr_bonus?.bonus_type || 'extra_sauce'} 
+                  onValueChange={handleBonusTypeChange}
+                >
+                  <SelectTrigger className="mt-1" data-testid="qr-bonus-type-select">
+                    <SelectValue placeholder="Bonus auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bonusTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Bonus Name */}
+              <div>
+                <Label className="text-slate-700">Bonus-Name (wird dem Kunden angezeigt)</Label>
+                <Input 
+                  value={settings.qr_bonus?.bonus_name || ''}
+                  onChange={(e) => updateQRBonus('bonus_name', e.target.value)}
+                  placeholder="z.B. Gratis Extra Sauce"
+                  className="mt-1"
+                  data-testid="qr-bonus-name-input"
+                />
+              </div>
+
+              {/* Bonus Value */}
+              {settings.qr_bonus?.bonus_type !== 'discount_10' && (
+                <div>
+                  <Label className="text-slate-700">Wert (€)</Label>
+                  <Input 
+                    type="number"
+                    step="0.10"
+                    min="0"
+                    value={settings.qr_bonus?.bonus_value || 0}
+                    onChange={(e) => updateQRBonus('bonus_value', parseFloat(e.target.value) || 0)}
+                    placeholder="0.80"
+                    className="mt-1 max-w-32"
+                    data-testid="qr-bonus-value-input"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">Wert des Bonus für Statistiken</p>
+                </div>
+              )}
+
+              {/* Preview */}
+              <div className="p-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl text-white">
+                <p className="text-sm opacity-80 mb-1">Vorschau für Kunden:</p>
+                <div className="flex items-center gap-2">
+                  <Gift className="w-5 h-5" />
+                  <span className="font-bold text-lg">{settings.qr_bonus?.bonus_name || 'Gratis Extra Sauce'}</span>
+                </div>
+                <p className="text-sm opacity-80 mt-1">
+                  🎉 Exklusiv bei QR-Bestellung!
+                </p>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
