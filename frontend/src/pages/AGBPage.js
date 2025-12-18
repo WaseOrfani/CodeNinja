@@ -13,9 +13,29 @@ export default function AGBPage() {
           Bedingungen des Kunden werden nicht anerkannt.
         </p>
 
-        <h2>§ 2 Vertragspartner</h2>
+        <h2>§ 2 Vertragspartner / Anbieter</h2>
         <p>
-          Der Kaufvertrag kommt zustande mit Hotel Ziegenkrug GmbH (ORIA FRESH), Kirchenplatz 9, 18119 Rostock-Warnemünde.
+          Der Kaufvertrag kommt zustande mit:
+        </p>
+        <p>
+          <strong>Hotel Ziegenkrug GmbH</strong><br />
+          Rostocker Straße 22<br />
+          18069 Lambrechtshagen / OT Sievershagen<br />
+          Deutschland
+        </p>
+        <p>
+          Telefon: +49 381 7704 – 0<br />
+          E-Mail: info@oriafresh.de
+        </p>
+        <p>
+          Vertreten durch: Abdul Wase Orfani
+        </p>
+        <p>
+          Handelsregister: Amtsgericht Rostock, HRB 11936<br />
+          Umsatzsteuer-ID: DE276563880
+        </p>
+        <p className="text-sm text-slate-500">
+          ORIA FRESH ist eine Marke der Hotel Ziegenkrug GmbH.
         </p>
 
         <h2>§ 3 Vertragsschluss</h2>
@@ -40,13 +60,14 @@ export default function AGBPage() {
 
         <h2>§ 5 Abholung</h2>
         <p>
-          Die bestellten Speisen können zur angegebenen Abholzeit an unserem Standort abgeholt werden. 
+          Die bestellten Speisen können zur angegebenen Abholzeit an unserem Standort ORIA FRESH 
+          (Kirchenplatz 9, 18119 Rostock-Warnemünde) abgeholt werden. 
           Bitte halten Sie Ihre Bestellnummer bereit.
         </p>
 
         <h2>§ 6 Eigentumsvorbehalt</h2>
         <p>
-          Die gelieferte Ware bleibt bis zur vollständigen Bezahlung Eigentum der ORIA FRESH GmbH.
+          Die gelieferte Ware bleibt bis zur vollständigen Bezahlung Eigentum der Hotel Ziegenkrug GmbH.
         </p>
 
         <h2>§ 7 Gewährleistung</h2>
@@ -56,7 +77,7 @@ export default function AGBPage() {
 
         <h2>§ 8 Haftung</h2>
         <p>
-          Für Schäden haftet die ORIA FRESH GmbH nur bei Vorsatz und grober Fahrlässigkeit. Dies gilt nicht für 
+          Für Schäden haftet die Hotel Ziegenkrug GmbH nur bei Vorsatz und grober Fahrlässigkeit. Dies gilt nicht für 
           Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit.
         </p>
 
@@ -73,7 +94,7 @@ export default function AGBPage() {
         </p>
         
         <p className="text-slate-500 mt-8">
-          Stand: Januar 2024
+          Stand: Dezember 2024
         </p>
       </div>
     </div>
