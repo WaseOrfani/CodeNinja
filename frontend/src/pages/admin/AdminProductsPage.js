@@ -282,8 +282,9 @@ export default function AdminProductsPage() {
                   <Switch 
                     checked={formData.is_halal}
                     onCheckedChange={(checked) => setFormData({...formData, is_halal: checked})}
+                    className="hidden"
                   />
-                  <Label>Halal</Label>
+                  {/* Halal option hidden */}
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch 
