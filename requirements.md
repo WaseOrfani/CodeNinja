@@ -58,18 +58,57 @@ Ziel: Bestellungen über Smartphone in unter 60 Sekunden abschließen.
 └─────────────────┘     └─────────────────┘
 ```
 
+## Neu implementiert (Update 2) ✅
+
+### Sicherheit
+- [x] Rate-Limiting für Admin-Login (5 Versuche, dann 15 Min. Sperre)
+- [x] Passwort-Änderung mit starken Anforderungen (12+ Zeichen, Groß/Klein, Zahl, Sonderzeichen)
+- [x] Login-Protokollierung (IP, Zeitstempel)
+- [x] Kürzere JWT Token-Laufzeit (15 Min.)
+
+### E-Mail-Service (Resend)
+- [x] Resend-Integration vorbereitet
+- [x] HTML-E-Mail-Templates (Kunde + Restaurant)
+- [x] Fallback auf Mock wenn nicht konfiguriert
+
+### DSGVO
+- [x] Cookie-Banner implementiert
+- [x] Nur technisch notwendige Cookies
+
+### Umsatz-Booster
+- [x] "Dazu passt perfekt" Upsell-Feature im Checkout
+- [x] Intelligente Produktempfehlungen (Burger → Käse, Bowl → Protein)
+
 ## Nächste Schritte (Next Actions)
 
-1. **PayPal Live-Keys einrichten** - Aktuell nur Sandbox konfiguriert
-2. **E-Mail-Service aktivieren** - Resend oder SendGrid integrieren
-3. **Produktbilder hochladen** - Eigene Produktfotos verwenden
-4. **SEO-Optimierung** - Meta-Tags, Sitemap, robots.txt
-5. **Cookie-Banner** - DSGVO-konformer Cookie-Hinweis
-6. **Analytics** - Google Analytics oder Plausible einbinden
-7. **Performance** - Image Optimization, Lazy Loading verbessern
+1. **Admin-Passwort ändern** - Über `/admin/password` neues sicheres Passwort setzen
+2. **PayPal Live-Keys einrichten**:
+   ```
+   PAYPAL_ENV=live
+   PAYPAL_CLIENT_ID=dein-live-client-id
+   PAYPAL_CLIENT_SECRET=dein-live-secret
+   ```
+3. **Resend E-Mail aktivieren**:
+   - Account erstellen: https://resend.com
+   - Domain verifizieren (SPF/DKIM)
+   - API Key in .env: `RESEND_API_KEY=re_xxx`
+   - Sender-Email: `SENDER_EMAIL=bestellung@oriafresh.de`
+4. **Produktbilder hochladen** - Eigene Produktfotos verwenden
+5. **Test-Bestellung** - 1€ Testprodukt mit echtem PayPal testen
 
-## Potenzielle Verbesserung 💡
+## Upsell-Regeln (implementiert)
 
-**Umsatzsteigerung durch "Beliebte Extras"**: 
-Beim Checkout automatisch Top-Extras vorschlagen (z.B. "Dazu passt: Extra Käse +€1.50"). 
-Dies kann den durchschnittlichen Bestellwert um 15-20% erhöhen.
+| Warenkorb enthält | Empfohlene Extras |
+|-------------------|-------------------|
+| Smash Burger | Extra Käse €1.50, Truffle Mayo €1.80, Jalapeños €1.00 |
+| Chicken/Veggie | Extra Sauce €0.80, Extra Käse €1.50 |
+| Bowls/Salads | Extra Protein €3.00, Extra Dressing €0.80, Avocado €2.00 |
+| Sides/Fries | Cheese Topping €1.50, Bacon Bits €1.80 |
+
+## E-Mail Templates
+
+E-Mails werden automatisch gesendet bei:
+- Bestellung an Kunde (Bestätigung)
+- Bestellung an Restaurant (Neue Bestellung Notification)
+
+Aktuell als Mock implementiert. Aktivierung durch Setzen von `RESEND_API_KEY` in der .env.
