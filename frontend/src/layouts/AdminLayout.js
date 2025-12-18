@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ClipboardList, Settings, LogOut, Home } from 'lucide-react';
+import { LayoutDashboard, Package, ClipboardList, Settings, LogOut, Home, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function AdminLayout() {
@@ -25,6 +25,7 @@ export default function AdminLayout() {
     { path: '/admin/products', icon: Package, label: 'Produkte' },
     { path: '/admin/orders', icon: ClipboardList, label: 'Bestellungen' },
     { path: '/admin/settings', icon: Settings, label: 'Einstellungen' },
+    { path: '/admin/password', icon: Lock, label: 'Passwort' },
   ];
 
   return (
