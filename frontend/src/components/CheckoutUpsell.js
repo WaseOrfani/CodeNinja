@@ -3,30 +3,38 @@ import { Button } from './ui/button';
 import { Plus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
-// Upsell-Regeln nach Kategorie
+// Die 6 verfügbaren Saucen (max 3 im Upsell anzeigen)
+const AVAILABLE_SAUCES = [
+  { id: 'upsell-smash-sauce', name: 'Smash-Sauce', price: 2.00, emoji: '🔥' },
+  { id: 'upsell-chili-cheese', name: 'Chili Cheese Sauce', price: 2.00, emoji: '🧀' },
+  { id: 'upsell-garlic-mayo', name: 'Garlic Mayonnaise', price: 2.00, emoji: '🧄' },
+  { id: 'upsell-bbq-sauce', name: 'BBQ-Sauce', price: 2.00, emoji: '🍖' },
+  { id: 'upsell-ketchup', name: 'Ketchup', price: 0.60, emoji: '🍅' },
+  { id: 'upsell-mayonnaise', name: 'Mayonnaise', price: 0.60, emoji: '🥚' },
+];
+
+// Upsell-Regeln nach Kategorie (max 3 Saucen)
 const UPSELL_RULES = {
-  // Burger → Golden Cheese Dip, Fire Mayo, Zesty Lime
+  // Burger → Smash-Sauce, Chili Cheese, BBQ
   'Burger': [
-    { id: 'upsell-cheese-dip', name: 'Golden Cheese Dip', price: 3.90, emoji: '🧀' },
-    { id: 'upsell-fire-mayo', name: 'Fire Mayo 🌶️', price: 1.50, emoji: '🌶️' },
-    { id: 'upsell-zesty-lime', name: 'Zesty Lime', price: 1.50, emoji: '🍋' },
+    AVAILABLE_SAUCES[0], // Smash-Sauce
+    AVAILABLE_SAUCES[1], // Chili Cheese
+    AVAILABLE_SAUCES[3], // BBQ-Sauce
   ],
-  // Bowls/Salate → Green Ranch, Creamy Tang, Hausgemachte Limo
+  // Bowls/Salate → Garlic Mayo, Smash-Sauce
   'Bowls': [
-    { id: 'upsell-green-ranch', name: 'Green Ranch', price: 1.50, emoji: '🥗' },
-    { id: 'upsell-creamy-tang', name: 'Creamy Tang', price: 1.50, emoji: '🥫' },
-    { id: 'upsell-limo', name: 'Citrus Glow', price: 3.90, emoji: '🍋', isDrink: true },
+    AVAILABLE_SAUCES[2], // Garlic Mayo
+    AVAILABLE_SAUCES[0], // Smash-Sauce
   ],
   'Salate': [
-    { id: 'upsell-green-ranch', name: 'Green Ranch', price: 1.50, emoji: '🥗' },
-    { id: 'upsell-creamy-tang', name: 'Creamy Tang', price: 1.50, emoji: '🥫' },
-    { id: 'upsell-limo', name: 'Citrus Glow', price: 3.90, emoji: '🍋', isDrink: true },
+    AVAILABLE_SAUCES[2], // Garlic Mayo
+    AVAILABLE_SAUCES[0], // Smash-Sauce
   ],
-  // Sides → Golden Cheese Dip, Melted Gold, Smoky Charm BBQ
+  // Sides (Pommes) → Chili Cheese, Smash-Sauce, Ketchup
   'Sides': [
-    { id: 'upsell-cheese-dip', name: 'Golden Cheese Dip', price: 3.90, emoji: '🧀' },
-    { id: 'upsell-melted-gold', name: 'Melted Gold', price: 1.50, emoji: '🧀' },
-    { id: 'upsell-smoky-bbq', name: 'Smoky Charm BBQ', price: 1.50, emoji: '🔥' },
+    AVAILABLE_SAUCES[1], // Chili Cheese
+    AVAILABLE_SAUCES[0], // Smash-Sauce
+    AVAILABLE_SAUCES[4], // Ketchup
   ],
 };
 
