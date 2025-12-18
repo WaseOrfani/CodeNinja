@@ -40,10 +40,11 @@ export default function DatenschutzPage() {
         <h3>Hinweis zur verantwortlichen Stelle</h3>
         <p>
           Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:<br /><br />
-          ORIA FRESH GmbH<br />
-          Musterstraße 123<br />
-          12345 Berlin<br /><br />
-          Telefon: +49 30 12345678<br />
+          Hotel Ziegenkrug GmbH (Brand: ORIA FRESH)<br />
+          Kirchenplatz 9<br />
+          18119 Rostock-Warnemünde<br />
+          Deutschland<br /><br />
+          Telefon: +49 381 7704 – 0<br />
           E-Mail: info@oriafresh.de
         </p>
 
