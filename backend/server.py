@@ -161,6 +161,12 @@ class OpeningHours(BaseModel):
     close: str
     is_closed: bool = False
 
+class QRBonus(BaseModel):
+    enabled: bool = True
+    bonus_type: str = "extra_sauce"  # "extra_sauce", "menu_discount", "free_drink"
+    bonus_name: str = "Gratis Extra Sauce"
+    bonus_value: float = 0.80  # Value in EUR (for discount types)
+
 class Settings(BaseModel):
     opening_hours: List[OpeningHours] = []
     pickup_slots: List[str] = ["sofort", "15 min", "30 min", "45 min", "60 min"]
@@ -168,6 +174,7 @@ class Settings(BaseModel):
     address: str = "Musterstraße 123, 12345 Berlin"
     phone: str = "+49 30 12345678"
     email: str = "info@oriafresh.de"
+    qr_bonus: QRBonus = QRBonus()
 
 # ============== AUTH HELPERS ==============
 
