@@ -1,19 +1,29 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import asyncio
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr
-from typing import List, Optional
+from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 import httpx
 import base64
+from collections import defaultdict
+import time
+
+# Try to import resend, but don't fail if not available
+try:
+    import resend
+    RESEND_AVAILABLE = True
+except ImportError:
+    RESEND_AVAILABLE = False
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -26,7 +36,7 @@ db = client[os.environ['DB_NAME']]
 # JWT Settings
 SECRET_KEY = os.environ.get('JWT_SECRET', 'oria-fresh-secret-key-2026')
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 15  # Shortened for security
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 # PayPal Settings
@@ -34,6 +44,20 @@ PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
 PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET', '')
 PAYPAL_ENV = os.environ.get('PAYPAL_ENV', 'sandbox')
 PAYPAL_BASE_URL = "https://api-m.sandbox.paypal.com" if PAYPAL_ENV == 'sandbox' else "https://api-m.paypal.com"
+
+# Email Settings (Resend)
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+RESTAURANT_EMAIL = os.environ.get('RESTAURANT_EMAIL', 'info@oriafresh.de')
+
+# Initialize Resend if available
+if RESEND_AVAILABLE and RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
+
+# Rate Limiting for Login
+LOGIN_ATTEMPTS: Dict[str, list] = defaultdict(list)
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_DURATION = 900  # 15 minutes in seconds
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
