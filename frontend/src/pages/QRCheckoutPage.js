@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useCart } from '../context/CartContext';
 import { toast } from 'sonner';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
-import { ArrowLeft, Clock, CreditCard, Banknote, Minus, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Clock, CreditCard, Banknote, Minus, Plus, Trash2, Gift, Sparkles } from 'lucide-react';
 import CheckoutUpsell from '../components/CheckoutUpsell';
 import axios from 'axios';
 
