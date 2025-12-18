@@ -41,10 +41,8 @@ export const CheckoutUpsell = ({ items, cartTotal }) => {
   const { addItem } = useCart();
   const [addedItems, setAddedItems] = useState(new Set());
   
-  // Don't show upsell if cart is already above threshold
-  if (cartTotal >= UPSELL_THRESHOLD) return null;
-
   // Determine which upsells to show based on cart items
+  // IMPORTANT: useMemo must be called before any conditional returns
   const suggestedUpsells = useMemo(() => {
     const categorySet = new Set();
     items.forEach(item => {
