@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>ORIA FRESH – Bestellablauf (Aushang)</title>
+  <style>
+    @page { margin: 1cm; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      color: #1e293b;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header {
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      font-size: 28px;
+      margin: 0;
+    }
+    .header h1 span { color: #22c55e; }
+    .header p {
+      color: #94a3b8;
+      margin-top: 5px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    .step {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: #22c55e;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0 auto 10px;
+    }
+    .step h3 {
+      font-size: 14px;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .step p {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .step .action {
+      background: #22c55e;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-top: 8px;
+      display: inline-block;
+    }
+    .status-flow {
+      background: #f1f5f9;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .status-flow code {
+      background: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      margin: 0 5px;
+    }
+    .status-flow .arrow {
+      color: #22c55e;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .rules {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+    .rules h3 {
+      color: #92400e;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .rules ul {
+      list-style: none;
+      padding: 0;
+    }
+    .rules li {
+      padding: 5px 0;
+      padding-left: 20px;
+      position: relative;
+      color: #78350f;
+    }
+    .rules li:before {
+      content: "⚠️";
+      position: absolute;
+      left: 0;
+    }
+    .problems {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+    .problem {
+      background: #fee2e2;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .problem h4 {
+      color: #b91c1c;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .problem ol {
+      font-size: 12px;
+      color: #7f1d1d;
+      padding-left: 18px;
+      margin: 0;
+    }
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 11px;
+    }
+    @media print {
+      body { padding: 0; }
+      .header { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="header">
+    <h1>ORIA <span>FRESH</span></h1>
+    <p>Online-Bestellungen – Ablauf für Mitarbeiter</p>
+  </div>
+  
+  <div class="steps">
+    <div class="step">
+      <div class="step-number">1</div>
+      <h3>📥 BESTELLUNG REIN</h3>
+      <p>E-Mail prüfen oder Admin-Dashboard</p>
+      <p><strong>Abholzeit sofort checken!</strong></p>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <h3>🍳 ZUBEREITUNG</h3>
+      <p>Nur was im System steht!</p>
+      <p>Sonderwünsche beachten</p>
+      <span class="action">→ In Zubereitung</span>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <h3>✅ FERTIG</h3>
+      <p>Beschriften (Nr. oder Name)</p>
+      <p>An Abholplatz stellen</p>
+      <span class="action">→ Abholbereit</span>
+    </div>
+    <div class="step">
+      <div class="step-number">4</div>
+      <h3>🤝 ÜBERGABE</h3>
+      <p>Name oder Nummer nennen lassen</p>
+      <p>Bestellung übergeben</p>
+      <span class="action">→ Abgeholt</span>
+    </div>
+  </div>
+  
+  <div class="status-flow">
+    <strong>STATUS-FLOW:</strong><br><br>
+    <code>BEZAHLT</code>
+    <span class="arrow">→</span>
+    <code>IN ZUBEREITUNG</code>
+    <span class="arrow">→</span>
+    <code>ABHOLBEREIT</code>
+    <span class="arrow">→</span>
+    <code>ABGEHOLT</code>
+  </div>
+  
+  <div class="rules">
+    <h3>⚠️ WICHTIGE REGELN</h3>
+    <ul>
+      <li>Status IMMER sofort aktualisieren – Kunde sieht es!</li>
+      <li>Sonderwünsche nur über den Shop – keine mündlichen Änderungen</li>
+      <li>Bei Problemen → Telefonnummer aus der Bestellung nutzen</li>
+      <li>Keine Preis- oder Produktänderungen ohne Admin</li>
+    </ul>
+  </div>
+  
+  <div class="problems">
+    <div class="problem">
+      <h4>🚫 Kunde kommt nicht</h4>
+      <ol>
+        <li>Nach 30 Min. anrufen</li>
+        <li>Nach 60 Min. → Storniert</li>
+        <li>Ware dokumentiert entsorgen</li>
+      </ol>
+    </div>
+    <div class="problem">
+      <h4>🚫 Produkt nicht verfügbar</h4>
+      <ol>
+        <li>Sofort Kunde anrufen</li>
+        <li>Alternative anbieten</li>
+        <li>Falls nein → Teilstorno</li>
+      </ol>
+    </div>
+    <div class="problem">
+      <h4>🚫 Falsche Bestellung</h4>
+      <ol>
+        <li>Richtige sofort neu machen</li>
+        <li>Fehler im Admin notieren</li>
+        <li>Team informieren</li>
+      </ol>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <strong>Admin-Zugang:</strong> oriafresh.de/admin | Bei Problemen: Teamleitung kontaktieren<br>
+    <em>Stand: Januar 2024</em>
+  </div>
+  
+</body>
+</html>
