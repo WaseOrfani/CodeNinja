@@ -22,6 +22,7 @@ export default function QRCheckoutPage() {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const [qrBonus, setQrBonus] = useState(null);
   
   // Minimal form - QR optimized
   const [formData, setFormData] = useState({
