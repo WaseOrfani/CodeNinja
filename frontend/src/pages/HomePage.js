@@ -43,7 +43,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative h-[70vh] md:h-[80vh] overflow-hidden">
         <img 
-          src="https://images.pexels.com/photos/11950111/pexels-photo-11950111.jpeg"
+          src="https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg"
           alt="ORIA FRESH Hero"
           className="absolute inset-0 w-full h-full object-cover"
         />
