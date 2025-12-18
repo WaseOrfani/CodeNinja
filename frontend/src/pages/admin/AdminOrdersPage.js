@@ -253,6 +253,21 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
 
+              {/* QR Bonus Applied */}
+              {selectedOrder.qr_bonus_applied && (
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-purple-800 mb-1 flex items-center gap-2">
+                    🎁 QR-Bonus
+                  </h3>
+                  <p className="text-purple-700 text-sm">{selectedOrder.qr_bonus_applied.name}</p>
+                  {selectedOrder.qr_bonus_applied.value > 0 && (
+                    <p className="text-purple-600 text-xs mt-1">
+                      Wert: €{selectedOrder.qr_bonus_applied.value?.toFixed(2)}
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Notes */}
               {selectedOrder.notes && (
                 <div className="bg-yellow-50 rounded-lg p-4">
