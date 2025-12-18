@@ -121,9 +121,9 @@ export default function MainLayout() {
             <div>
               <h4 className="font-semibold mb-4">Kontakt</h4>
               <div className="space-y-2 text-slate-400 text-sm">
-                <p>Musterstraße 123</p>
-                <p>12345 Berlin</p>
-                <p>+49 30 12345678</p>
+                <p>Kirchenplatz 9</p>
+                <p>18119 Rostock-Warnemünde</p>
+                <p>+49 381 7704 – 0</p>
                 <p>info@oriafresh.de</p>
               </div>
             </div>
