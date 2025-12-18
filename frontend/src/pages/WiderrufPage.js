@@ -17,10 +17,10 @@ export default function WiderrufPage() {
           Um Ihr Widerrufsrecht auszuüben, müssen Sie uns
         </p>
         <p>
-          ORIA FRESH GmbH<br />
-          Musterstraße 123<br />
-          12345 Berlin<br />
-          Telefon: +49 30 12345678<br />
+          Hotel Ziegenkrug GmbH (ORIA FRESH)<br />
+          Kirchenplatz 9<br />
+          18119 Rostock-Warnemünde<br />
+          Telefon: +49 381 7704 – 0<br />
           E-Mail: info@oriafresh.de
         </p>
         <p>
