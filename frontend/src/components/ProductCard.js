@@ -31,11 +31,6 @@ export const ProductCard = ({ product }) => {
         <div className="flex items-center justify-between mt-3">
           <div className="flex items-center gap-2">
             <span className="font-bold text-green-600">ab €{lowestPrice.toFixed(2)}</span>
-            {product.is_halal && (
-              <Badge variant="secondary" className="bg-green-50 text-green-700 text-[10px] font-medium">
-                Halal
-              </Badge>
-            )}
           </div>
           <div className="w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center group-hover:bg-green-600 transition-colors shadow-md shadow-green-500/20">
             <Plus className="w-5 h-5" strokeWidth={2} />
