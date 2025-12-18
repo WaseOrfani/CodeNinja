@@ -499,6 +499,9 @@ async def get_settings():
     settings = await db.settings.find_one({}, {"_id": 0})
     if not settings:
         return Settings().model_dump()
+    # Ensure qr_bonus is always present
+    if 'qr_bonus' not in settings:
+        settings['qr_bonus'] = QRBonus().model_dump()
     return settings
 
 # ============== ORDER ROUTES ==============
