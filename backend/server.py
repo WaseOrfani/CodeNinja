@@ -113,6 +113,11 @@ class CartItem(BaseModel):
     extras: List[dict] = []
     total: float
 
+class BonusItem(BaseModel):
+    name: str
+    value: float
+    type: str  # "extra_sauce", "free_drink", "discount"
+
 class OrderCreate(BaseModel):
     items: List[CartItem]
     customer_name: str
@@ -124,6 +129,7 @@ class OrderCreate(BaseModel):
     subtotal: float
     total: float
     source: Optional[str] = "web"  # "web" or "qr"
+    qr_bonus_applied: Optional[BonusItem] = None  # Track applied QR bonus
 
 class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
