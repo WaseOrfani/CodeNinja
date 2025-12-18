@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { useAuth } from '../../context/AuthContext';
-import { ShoppingBag, Euro, Clock, CheckCircle, QrCode } from 'lucide-react';
+import { ShoppingBag, Euro, Clock, CheckCircle, QrCode, Gift } from 'lucide-react';
 import axios from 'axios';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
