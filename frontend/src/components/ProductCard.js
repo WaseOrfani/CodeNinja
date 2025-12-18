@@ -42,13 +42,19 @@ export const ProductCard = ({ product }) => {
           </div>
         </div>
         
-        {product.is_bestseller && (
-          <div className="absolute top-3 left-3">
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1">
+          {product.is_featured && (
+            <Badge className="bg-purple-600 text-white text-[10px] font-bold">
+              ⭐ NEU
+            </Badge>
+          )}
+          {product.is_bestseller && !product.is_featured && (
             <Badge className="bg-orange-500 text-white text-[10px] font-bold">
               Bestseller
             </Badge>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </Link>
   );
