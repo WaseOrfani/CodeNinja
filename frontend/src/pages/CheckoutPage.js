@@ -142,6 +142,9 @@ export default function CheckoutPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Form */}
         <div className="lg:col-span-2 space-y-8">
+          {/* Upsell Section */}
+          <CheckoutUpsell items={items} />
+          
           {/* Pickup Info */}
           <div className="bg-white rounded-2xl border border-slate-100 p-6">
             <div className="flex items-center gap-3 mb-6">
