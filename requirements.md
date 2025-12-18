@@ -124,6 +124,57 @@ Ziel: Bestellungen über Smartphone in unter 60 Sekunden abschließen.
 
 **Erwarteter Impact:** +10-20% Warenkorbwert
 
+## QR-Ordering System (Update 4) ✅
+
+### QR Entry Points
+- [x] `/qr` - Schneller Einstieg, setzt QR-Modus
+- [x] `/qr?table=5` - Mit Tischnummer
+- [x] `/qr/shop` - QR-optimierter Shop
+- [x] `/qr/product/:id` - Produktdetails (Menü hervorgehoben)
+- [x] `/qr/checkout` - Minimaler Checkout
+- [x] `/qr/success/:id` - Bestellbestätigung
+
+### QR Shop Features
+- [x] Mobile-first Layout (2-spaltig)
+- [x] Bestseller automatisch oben
+- [x] **MENÜ Badge** für Menü-Varianten
+- [x] Kompakte Kategorien-Filter
+- [x] Fixierter "Zur Kasse" Button
+- [x] Minimale Navigation (nur Shop + Cart)
+
+### QR Checkout Optimierung
+- [x] Abholzeit-Buttons (statt Dropdown)
+- [x] **Erster Slot vorausgewählt** (sofort)
+- [x] Minimale Formularfelder (Name, Telefon)
+- [x] E-Mail optional
+- [x] Tischnummer automatisch in Notizen
+- [x] Upsell-Bereich (bei < €25)
+
+### QR Tracking
+- [x] `source: "qr"` Feld in Orders
+- [x] Dashboard zeigt QR-Statistiken
+- [x] **QR-Label** in Bestellliste
+- [x] QR-Bestellungen % Anteil
+
+### Admin QR-Generator
+- [x] `/admin/qr` - QR-Code Generator
+- [x] Tischnummer optional
+- [x] Download als PNG
+- [x] URL kopieren
+- [x] Live-Vorschau
+
+### URLs
+| Route | Beschreibung |
+|-------|-------------|
+| `/qr` | QR Entry Point |
+| `/qr?table=5` | Mit Tischnummer |
+| `/admin/qr` | QR-Code Generator |
+
+**Erwarteter Impact:**
+- Kürzere Wartezeit an der Theke
+- +10-15% höherer Bestellwert (Menü-Highlighting)
+- Vereinfachter Workflow für Personal
+
 ## E-Mail Templates
 
 E-Mails werden automatisch gesendet bei:
