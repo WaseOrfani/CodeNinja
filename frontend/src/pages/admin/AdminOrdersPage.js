@@ -129,11 +129,18 @@ export default function AdminOrdersPage() {
                   return (
                     <tr key={order.id} className="border-t border-slate-50">
                       <td className="py-3 px-4">
-                        <div>
-                          <span className="font-mono text-sm font-medium text-slate-900">
-                            #{order.id?.slice(0, 8).toUpperCase()}
-                          </span>
-                          <p className="text-xs text-slate-500">{formatDate(order.created_at)}</p>
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <span className="font-mono text-sm font-medium text-slate-900">
+                              #{order.id?.slice(0, 8).toUpperCase()}
+                            </span>
+                            <p className="text-xs text-slate-500">{formatDate(order.created_at)}</p>
+                          </div>
+                          {order.source === 'qr' && (
+                            <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded">
+                              QR
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="py-3 px-4">
