@@ -178,8 +178,8 @@ class Settings(BaseModel):
     opening_hours: List[OpeningHours] = []
     pickup_slots: List[str] = ["sofort", "15 min", "30 min", "45 min", "60 min"]
     restaurant_name: str = "ORIA FRESH"
-    address: str = "Musterstraße 123, 12345 Berlin"
-    phone: str = "+49 30 12345678"
+    address: str = "Kirchenplatz 9, 18119 Rostock-Warnemünde"
+    phone: str = "+49 381 7704 – 0"
     email: str = "info@oriafresh.de"
     qr_bonus: QRBonus = QRBonus()
 
