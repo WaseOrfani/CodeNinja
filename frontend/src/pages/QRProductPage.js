@@ -126,9 +126,7 @@ export default function QRProductPage() {
           {product.is_bestseller && (
             <Badge className="bg-orange-500 text-white">Bestseller</Badge>
           )}
-          {product.is_halal && (
-            <Badge variant="secondary" className="bg-green-50 text-green-700">Halal</Badge>
-          )}
+{/* Halal badge removed */}
         </div>
 
         <h1 className="text-2xl font-bold text-slate-900">{product.name}</h1>
