@@ -153,7 +153,7 @@ export default function CheckoutPage() {
               </div>
               <div>
                 <h2 className="font-semibold text-slate-900">Abholung</h2>
-                <p className="text-sm text-slate-500">{settings?.address || 'Musterstraße 123, Berlin'}</p>
+                <p className="text-sm text-slate-500">Kirchenplatz 9, 18119 Rostock-Warnemünde</p>
               </div>
             </div>
 
