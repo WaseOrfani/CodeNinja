@@ -2,14 +2,14 @@ export default function AGBPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12 animate-slide-up">
       <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-8">
-        Allgemeine Geschäftsbedingungen
+        Allgemeine Geschäftsbedingungen (AGB)
       </h1>
       
       <div className="prose prose-slate max-w-none">
         <h2>§ 1 Geltungsbereich</h2>
         <p>
-          Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Bestellungen, die über unseren Online-Shop 
-          oriafresh.de getätigt werden. Die AGB gelten ausschließlich; entgegenstehende oder abweichende 
+          Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Bestellungen, die über den Online-Shop 
+          oriafresh.de getätigt werden. Es gelten ausschließlich diese AGB. Entgegenstehende oder abweichende 
           Bedingungen des Kunden werden nicht anerkannt.
         </p>
 
@@ -34,40 +34,40 @@ export default function AGBPage() {
           Handelsregister: Amtsgericht Rostock, HRB 11936<br />
           Umsatzsteuer-ID: DE276563880
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-slate-600 italic">
           ORIA FRESH ist eine Marke der Hotel Ziegenkrug GmbH.
         </p>
 
         <h2>§ 3 Vertragsschluss</h2>
         <p>
-          Die Darstellung der Produkte im Online-Shop stellt kein rechtlich bindendes Angebot, sondern eine 
-          Aufforderung zur Bestellung dar. Mit dem Absenden der Bestellung geben Sie ein verbindliches Angebot ab. 
-          Die Bestellbestätigung per E-Mail stellt die Annahme Ihres Angebots dar.
+          Die Darstellung der Produkte im Online-Shop stellt kein rechtlich bindendes Angebot dar, sondern eine 
+          Aufforderung zur Abgabe einer Bestellung. Mit dem Absenden der Bestellung geben Sie ein verbindliches 
+          Angebot ab. Die Bestellbestätigung per E-Mail stellt die Annahme Ihres Angebots dar.
         </p>
 
         <h2>§ 4 Preise und Zahlung</h2>
         <p>
           Alle Preise sind Endpreise und enthalten die gesetzliche Mehrwertsteuer. Es fallen keine zusätzlichen 
-          Versandkosten an, da es sich um Abholbestellungen handelt.
+          Versandkosten an, da es sich ausschließlich um Abholbestellungen handelt.
         </p>
         <p>
           Folgende Zahlungsmethoden stehen zur Verfügung:
         </p>
         <ul>
           <li>PayPal</li>
-          <li>Zahlung bei Abholung (Bar oder Kartenzahlung)</li>
+          <li>Zahlung bei Abholung (Bar- oder Kartenzahlung)</li>
         </ul>
 
         <h2>§ 5 Abholung</h2>
         <p>
-          Die bestellten Speisen können zur angegebenen Abholzeit an unserem Standort ORIA FRESH 
-          (Kirchenplatz 9, 18119 Rostock-Warnemünde) abgeholt werden. 
+          Die bestellten Speisen können zur angegebenen Abholzeit am Standort 
+          ORIA FRESH, Kirchenplatz 9, 18119 Rostock-Warnemünde abgeholt werden. 
           Bitte halten Sie Ihre Bestellnummer bereit.
         </p>
 
         <h2>§ 6 Eigentumsvorbehalt</h2>
         <p>
-          Die gelieferte Ware bleibt bis zur vollständigen Bezahlung Eigentum der Hotel Ziegenkrug GmbH.
+          Die Ware bleibt bis zur vollständigen Bezahlung Eigentum der Hotel Ziegenkrug GmbH.
         </p>
 
         <h2>§ 7 Gewährleistung</h2>
@@ -77,20 +77,20 @@ export default function AGBPage() {
 
         <h2>§ 8 Haftung</h2>
         <p>
-          Für Schäden haftet die Hotel Ziegenkrug GmbH nur bei Vorsatz und grober Fahrlässigkeit. Dies gilt nicht für 
-          Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit.
+          Die Hotel Ziegenkrug GmbH haftet nur bei Vorsatz und grober Fahrlässigkeit. 
+          Dies gilt nicht für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit.
         </p>
 
         <h2>§ 9 Allergene und Zusatzstoffe</h2>
         <p>
-          Informationen zu Allergenen und Zusatzstoffen finden Sie bei den jeweiligen Produktbeschreibungen. 
+          Informationen zu Allergenen und Zusatzstoffen finden Sie in den jeweiligen Produktbeschreibungen. 
           Bei Fragen wenden Sie sich bitte an unser Personal.
         </p>
 
         <h2>§ 10 Schlussbestimmungen</h2>
         <p>
-          Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist Rostock, sofern Sie Kaufmann sind 
-          oder keinen allgemeinen Gerichtsstand in Deutschland haben.
+          Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist Rostock, sofern der Kunde Kaufmann 
+          ist oder keinen allgemeinen Gerichtsstand in Deutschland hat.
         </p>
         
         <p className="text-slate-500 mt-8">
