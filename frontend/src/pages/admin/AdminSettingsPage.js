@@ -87,6 +87,26 @@ export default function AdminSettingsPage() {
     }));
   };
 
+  const updateQRBonus = (field, value) => {
+    setSettings(prev => ({
+      ...prev,
+      qr_bonus: { ...prev.qr_bonus, [field]: value }
+    }));
+  };
+
+  const handleBonusTypeChange = (bonusType) => {
+    const selected = bonusTypes.find(b => b.value === bonusType);
+    setSettings(prev => ({
+      ...prev,
+      qr_bonus: {
+        ...prev.qr_bonus,
+        bonus_type: bonusType,
+        bonus_name: selected?.defaultName || prev.qr_bonus.bonus_name,
+        bonus_value: selected?.defaultValue ?? prev.qr_bonus.bonus_value
+      }
+    }));
+  };
+
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
