@@ -33,7 +33,7 @@ export default function HomePage() {
   const benefits = [
     { icon: Leaf, title: 'Frisch zubereitet', desc: 'Alles frisch vor Ort' },
     { icon: Zap, title: 'Schnell', desc: 'In wenigen Minuten fertig' },
-    { icon: Award, title: 'Halal-Optionen', desc: 'Zertifizierte Qualität' },
+    { icon: Award, title: 'Premium Qualität', desc: 'Hochwertige Zutaten' },
     { icon: MapPin, title: 'Abholung', desc: 'Bequem abholen' },
     { icon: Clock, title: 'Top Qualität', desc: 'Nur das Beste' },
   ];
