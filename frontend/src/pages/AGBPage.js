@@ -15,7 +15,7 @@ export default function AGBPage() {
 
         <h2>§ 2 Vertragspartner</h2>
         <p>
-          Der Kaufvertrag kommt zustande mit ORIA FRESH GmbH, Musterstraße 123, 12345 Berlin.
+          Der Kaufvertrag kommt zustande mit Hotel Ziegenkrug GmbH (ORIA FRESH), Kirchenplatz 9, 18119 Rostock-Warnemünde.
         </p>
 
         <h2>§ 3 Vertragsschluss</h2>
