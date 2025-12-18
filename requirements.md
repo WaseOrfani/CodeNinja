@@ -96,6 +96,23 @@ Ziel: Bestellungen über Smartphone in unter 60 Sekunden abschließen.
 4. **Produktbilder hochladen** - Eigene Produktfotos verwenden
 5. **Test-Bestellung** - 1€ Testprodukt mit echtem PayPal testen
 
+## Umsatz-Optimierung (Update 3) ✅
+
+### Automatische Sortierung
+- [x] **Bestseller automatisch oben** im Shop
+- [x] **Featured → Bestseller → Rest** Sortierlogik
+- [x] Featured-Produkte werden zuerst angezeigt (für Monthly Drops)
+
+### Intelligentes Upsell
+- [x] **Nur bei Warenkorb < €25** - pusht Mindestkorbwert ohne zu nerven
+- [x] Zeigt "Noch €X.XX bis €25" an
+- [x] Max. 3 Vorschläge, passend zum Warenkorb
+
+### Featured-Flag im Admin
+- [x] ⭐ Featured Toggle für "Monthly Drop" Produkte
+- [x] Featured-Badge "⭐ NEU" auf Produktkarten
+- [x] Featured-Produkte werden vor Bestsellern angezeigt
+
 ## Upsell-Regeln (implementiert)
 
 | Warenkorb enthält | Empfohlene Extras |
@@ -104,6 +121,8 @@ Ziel: Bestellungen über Smartphone in unter 60 Sekunden abschließen.
 | Chicken/Veggie | Extra Sauce €0.80, Extra Käse €1.50 |
 | Bowls/Salads | Extra Protein €3.00, Extra Dressing €0.80, Avocado €2.00 |
 | Sides/Fries | Cheese Topping €1.50, Bacon Bits €1.80 |
+
+**Erwarteter Impact:** +10-20% Warenkorbwert
 
 ## E-Mail Templates
 
