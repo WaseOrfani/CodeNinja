@@ -25,6 +25,13 @@ import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminChangePasswordPage from "./pages/admin/AdminChangePasswordPage";
 
+// QR Order Pages
+import QREntryPage from "./pages/QREntryPage";
+import QRShopPage from "./pages/QRShopPage";
+import QRProductPage from "./pages/QRProductPage";
+import QRCheckoutPage from "./pages/QRCheckoutPage";
+import QRSuccessPage from "./pages/QRSuccessPage";
+
 // Layout
 import MainLayout from "./layouts/MainLayout";
 import AdminLayout from "./layouts/AdminLayout";
@@ -52,6 +59,13 @@ function App() {
               <Route path="/agb" element={<AGBPage />} />
               <Route path="/widerruf" element={<WiderrufPage />} />
             </Route>
+            
+            {/* QR Order Routes - No Layout, minimal UI */}
+            <Route path="/qr" element={<QREntryPage />} />
+            <Route path="/qr/shop" element={<QRShopPage />} />
+            <Route path="/qr/product/:id" element={<QRProductPage />} />
+            <Route path="/qr/checkout" element={<QRCheckoutPage />} />
+            <Route path="/qr/success/:orderId" element={<QRSuccessPage />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
