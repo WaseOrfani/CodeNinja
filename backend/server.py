@@ -145,6 +145,7 @@ class Order(BaseModel):
     total: float
     status: str = "pending"  # pending, paid, in_preparation, ready, picked_up, cancelled
     paypal_order_id: Optional[str] = None
+    qr_bonus_applied: Optional[dict] = None  # Track QR bonus: {name, value, type}
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class AdminCreate(BaseModel):
