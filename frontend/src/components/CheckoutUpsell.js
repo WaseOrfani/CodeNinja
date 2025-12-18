@@ -5,33 +5,34 @@ import { useCart } from '../context/CartContext';
 
 // Upsell-Regeln: Welche Produkte triggern welche Extras
 const UPSELL_RULES = {
-  // Burger-Kategorien -> Käse, Sauce, Bacon
+  // Burger-Kategorien -> Saucen, Extras
   'Smash Burger': [
     { id: 'upsell-cheese', name: 'Extra Käse', price: 1.50, emoji: '🧀' },
-    { id: 'upsell-sauce', name: 'Truffle Mayo', price: 1.80, emoji: '🥫' },
-    { id: 'upsell-jalapeno', name: 'Jalapeños', price: 1.00, emoji: '🌶️' },
+    { id: 'upsell-truffle', name: 'Truffle Mayo', price: 1.50, emoji: '🥫' },
+    { id: 'upsell-guac', name: 'Guacamole', price: 1.50, emoji: '🥑' },
   ],
-  // Chicken -> Sauce, Coleslaw
+  // Chicken -> Sauce, Extras
   'Chicken & Veggie': [
-    { id: 'upsell-sauce-chicken', name: 'Extra Sauce', price: 0.80, emoji: '🥫' },
+    { id: 'upsell-ranch', name: 'Ranch Sauce', price: 1.50, emoji: '🥫' },
     { id: 'upsell-cheese', name: 'Extra Käse', price: 1.50, emoji: '🧀' },
+    { id: 'upsell-jalapeno', name: 'Jalapeño Mayo', price: 1.50, emoji: '🌶️' },
   ],
   // Bowls -> Protein, Dressing
   'Bowls & Salads': [
     { id: 'upsell-protein', name: 'Extra Protein', price: 3.00, emoji: '🍗' },
-    { id: 'upsell-dressing', name: 'Extra Dressing', price: 0.80, emoji: '🥗' },
-    { id: 'upsell-avocado', name: 'Avocado', price: 2.00, emoji: '🥑' },
+    { id: 'upsell-guac', name: 'Guacamole', price: 1.50, emoji: '🥑' },
   ],
-  // Sides -> Cheese topping
+  // Sides -> Cheese Dip
   'Sides': [
-    { id: 'upsell-cheese-fries', name: 'Cheese Topping', price: 1.50, emoji: '🧀' },
-    { id: 'upsell-bacon', name: 'Bacon Bits', price: 1.80, emoji: '🥓' },
+    { id: 'upsell-cheese-dip', name: 'Cheese Sauce Dip', price: 3.90, emoji: '🧀' },
+    { id: 'upsell-truffle', name: 'Truffle Mayo', price: 1.50, emoji: '🥫' },
   ],
   // Kids -> keine Upsells
   'Kids': [],
-  // Drinks -> Size upgrade
-  'Drinks': [
-    { id: 'upsell-size', name: 'Größe upgrade', price: 1.00, emoji: '📏' },
+  // Getränke Empfehlungen
+  'default': [
+    { id: 'upsell-limo', name: 'Hausgemachte Limo', price: 3.90, emoji: '🍋' },
+    { id: 'upsell-schorle', name: 'Schorle', price: 4.70, emoji: '🍎' },
   ],
 };
 
