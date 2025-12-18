@@ -81,6 +81,9 @@ export const CheckoutUpsell = ({ items, cartTotal }) => {
     return upsells;
   }, [items]);
 
+  // Don't show upsell if cart is already above threshold
+  if (cartTotal >= UPSELL_THRESHOLD) return null;
+
   const handleAddUpsell = (upsell) => {
     // Create a simple "extra" item
     const extraProduct = {
