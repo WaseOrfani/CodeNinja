@@ -341,7 +341,7 @@ export default function CheckoutPage() {
                     }}
                     onApprove={async (data) => {
                       try {
-                        await api.apiPost(`/orders/${orderId}/capture?paypal_order_id=${data.orderID}`, {});
+                        await apiPost(`/orders/${orderId}/capture?paypal_order_id=${data.orderID}`, {});
                         clearCart();
                         toast.success('Zahlung erfolgreich!');
                         navigate(`/order-confirmation/${orderId}`);
