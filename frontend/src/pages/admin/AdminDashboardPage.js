@@ -3,12 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Badge } from '../../components/ui/badge';
 import { useAuth } from '../../context/AuthContext';
 import { ShoppingBag, Euro, Clock, CheckCircle, QrCode, Gift } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../../lib/api';
 
 export default function AdminDashboardPage() {
-  const { getToken } = useAuth();
   const [dashboard, setDashboard] = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,16 +13,13 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = getToken();
-        const headers = { Authorization: `Bearer ${token}` };
-        
-        const [dashboardRes, ordersRes] = await Promise.all([
-          axios.get(`${API}/admin/dashboard`, { headers }),
-          axios.get(`${API}/admin/orders`, { headers })
+        const [dashboardData, ordersData] = await Promise.all([
+          api.getDashboard(),
+          api.getOrders()
         ]);
         
-        setDashboard(dashboardRes.data);
-        setRecentOrders(ordersRes.data.slice(0, 5));
+        setDashboard(dashboardData);
+        setRecentOrders(Array.isArray(ordersData) ? ordersData.slice(0, 5) : []);
       } catch (error) {
         console.error('Error fetching dashboard:', error);
       } finally {
@@ -33,7 +27,7 @@ export default function AdminDashboardPage() {
       }
     };
     fetchData();
-  }, [getToken]);
+  }, []);
 
   const stats = [
     { 
