@@ -195,7 +195,7 @@ export default function AdminOrdersPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              Bestellung #{selectedOrder?.id?.slice(0, 8).toUpperCase()}
+              Bestellung #{selectedOrder?.order_number || selectedOrder?.id?.toString().slice(0, 8).toUpperCase()}
             </DialogTitle>
           </DialogHeader>
           
