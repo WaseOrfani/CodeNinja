@@ -1,0 +1,35 @@
+# ORIA FRESH - Apache Konfiguration
+
+RewriteEngine On
+RewriteBase /
+
+# API Anfragen an api/index.php weiterleiten
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ api/index.php [L,QSA]
+
+# Admin Panel
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/admin
+RewriteRule ^admin(.*)$ admin/index.php [L,QSA]
+
+# Uploads direkt liefern
+RewriteCond %{REQUEST_URI} ^/uploads/
+RewriteRule ^uploads/(.*)$ uploads/$1 [L]
+
+# PHP Fehler (nur für Entwicklung)
+# php_flag display_errors on
+# php_value error_reporting E_ALL
+
+# Sicherheit
+<FilesMatch "\.(sql|env|md)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# CORS für API
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
