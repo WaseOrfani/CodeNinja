@@ -6,9 +6,7 @@ import { Checkbox } from '../components/ui/checkbox';
 import { useCart } from '../context/CartContext';
 import { toast } from 'sonner';
 import { ArrowLeft, Minus, Plus, ShoppingBag, Star } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../lib/api';
 
 export default function QRProductPage() {
   const { id } = useParams();
@@ -31,13 +29,13 @@ export default function QRProductPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`${API}/products/${id}`);
-        setProduct(response.data);
+        const productData = await api.getProduct(id);
+        setProduct(productData);
         // Default to Menü variant if available, otherwise first
-        const menuVariant = response.data.variants.find(v => 
+        const menuVariant = productData.variants?.find(v => 
           v.name?.toLowerCase().includes('menü')
         );
-        setSelectedVariant(menuVariant || response.data.variants[0]);
+        setSelectedVariant(menuVariant || productData.variants?.[0]);
       } catch (error) {
         console.error('Error fetching product:', error);
         navigate('/qr/shop');
