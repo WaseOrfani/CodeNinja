@@ -9,12 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../../lib/api';
 
 export default function AdminProductsPage() {
-  const { getToken } = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,16 +38,13 @@ export default function AdminProductsPage() {
 
   const fetchData = async () => {
     try {
-      const token = getToken();
-      const headers = { Authorization: `Bearer ${token}` };
-      
-      const [productsRes, categoriesRes] = await Promise.all([
-        axios.get(`${API}/admin/products`, { headers }),
-        axios.get(`${API}/categories`)
+      const [productsData, categoriesData] = await Promise.all([
+        api.getAdminProducts(),
+        api.getCategories()
       ]);
       
-      setProducts(productsRes.data);
-      setCategories(categoriesRes.data);
+      setProducts(Array.isArray(productsData) ? productsData : []);
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Fehler beim Laden der Daten');
@@ -61,15 +55,13 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = getToken();
-    const headers = { Authorization: `Bearer ${token}` };
 
     try {
       if (editingProduct) {
-        await axios.put(`${API}/admin/products/${editingProduct.id}`, formData, { headers });
+        await api.updateProduct(editingProduct.id, formData);
         toast.success('Produkt aktualisiert');
       } else {
-        await axios.post(`${API}/admin/products`, formData, { headers });
+        await api.createProduct(formData);
         toast.success('Produkt erstellt');
       }
       setDialogOpen(false);
@@ -84,10 +76,7 @@ export default function AdminProductsPage() {
     if (!window.confirm('Produkt wirklich deaktivieren?')) return;
     
     try {
-      const token = getToken();
-      await axios.delete(`${API}/admin/products/${productId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.deleteProduct(productId);
       toast.success('Produkt deaktiviert');
       fetchData();
     } catch (error) {
