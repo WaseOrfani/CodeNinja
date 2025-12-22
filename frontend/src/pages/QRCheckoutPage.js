@@ -362,7 +362,7 @@ export default function QRCheckoutPage() {
               }}
               onApprove={async (data) => {
                 try {
-                  await axios.post(`${API}/orders/${orderId}/capture?paypal_order_id=${data.orderID}`);
+                  await apiPost(`/orders/${orderId}/capture?paypal_order_id=${data.orderID}`, {});
                   clearCart();
                   sessionStorage.removeItem('oria-qr-mode');
                   sessionStorage.removeItem('oria-table');
