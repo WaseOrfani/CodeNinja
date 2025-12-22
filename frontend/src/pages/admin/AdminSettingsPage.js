@@ -8,12 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { Clock, MapPin, Phone, Mail, Save, Gift, QrCode } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../../lib/api';
 
 export default function AdminSettingsPage() {
-  const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({
@@ -52,9 +49,9 @@ export default function AdminSettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const response = await axios.get(`${API}/settings`);
-      if (response.data && Object.keys(response.data).length > 0) {
-        setSettings(prev => ({ ...prev, ...response.data }));
+      const settingsData = await api.getSettings();
+      if (settingsData && Object.keys(settingsData).length > 0) {
+        setSettings(prev => ({ ...prev, ...settingsData }));
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
