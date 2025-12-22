@@ -11,9 +11,8 @@ import { toast } from 'sonner';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { CreditCard, Banknote, Clock, MapPin, ArrowLeft } from 'lucide-react';
 import CheckoutUpsell from '../components/CheckoutUpsell';
-import axios from 'axios';
+import api from '../lib/api';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const PAYPAL_CLIENT_ID = process.env.REACT_APP_PAYPAL_CLIENT_ID || 'sb';
 
 export default function CheckoutPage() {
