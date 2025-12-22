@@ -133,7 +133,7 @@ export default function AdminDashboardPage() {
                       <tr key={order.id} className="border-b border-slate-50">
                         <td className="py-3 px-2">
                           <span className="font-mono text-sm text-slate-900">
-                            #{order.id?.slice(0, 8).toUpperCase()}
+                            #{order.order_number || order.id?.toString().slice(0, 8).toUpperCase()}
                           </span>
                         </td>
                         <td className="py-3 px-2">
