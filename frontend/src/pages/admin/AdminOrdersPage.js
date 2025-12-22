@@ -123,7 +123,7 @@ export default function AdminOrdersPage() {
                         <div className="flex items-center gap-2">
                           <div>
                             <span className="font-mono text-sm font-medium text-slate-900">
-                              #{order.id?.slice(0, 8).toUpperCase()}
+                              #{order.order_number || order.id?.toString().slice(0, 8).toUpperCase()}
                             </span>
                             <p className="text-xs text-slate-500">{formatDate(order.created_at)}</p>
                           </div>
