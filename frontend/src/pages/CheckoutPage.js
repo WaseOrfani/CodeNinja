@@ -93,8 +93,8 @@ export default function CheckoutPage() {
         total: cartTotal
       };
 
-      const response = await axios.post(`${API}/orders`, orderData);
-      return response.data;
+      const orderResult = await api.createOrder(orderData);
+      return orderResult;
     } catch (error) {
       console.error('Order creation error:', error);
       toast.error('Fehler beim Erstellen der Bestellung');
