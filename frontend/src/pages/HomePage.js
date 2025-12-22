@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { ProductCard } from '../components/ProductCard';
 import { ArrowRight, Clock, Leaf, Zap, MapPin, Award } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../lib/api';
 
 export default function HomePage() {
   const [bestsellers, setBestsellers] = useState([]);
@@ -15,12 +13,12 @@ export default function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsRes, settingsRes] = await Promise.all([
-          axios.get(`${API}/bestsellers`),
-          axios.get(`${API}/settings`)
+        const [bestsellersData, settingsData] = await Promise.all([
+          api.getBestsellers(),
+          api.getSettings()
         ]);
-        setBestsellers(productsRes.data);
-        setSettings(settingsRes.data);
+        setBestsellers(bestsellersData);
+        setSettings(settingsData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
