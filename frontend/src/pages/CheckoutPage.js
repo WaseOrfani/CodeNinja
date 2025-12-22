@@ -39,8 +39,8 @@ export default function CheckoutPage() {
     
     const fetchSettings = async () => {
       try {
-        const response = await axios.get(`${API}/settings`);
-        setSettings(response.data);
+        const settingsData = await api.getSettings();
+        setSettings(settingsData);
       } catch (error) {
         console.error('Error fetching settings:', error);
       }
