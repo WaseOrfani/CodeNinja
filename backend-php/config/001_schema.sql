@@ -160,8 +160,9 @@ CREATE TABLE IF NOT EXISTS settings (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Standard Admin (Passwort: admin123)
+-- Hash erstellt mit: password_hash('admin123', PASSWORD_BCRYPT)
 INSERT INTO admins (email, password_hash, name) VALUES 
-('admin@oriafresh.de', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator')
+('admin@oriafresh.de', '$2y$10$PA0DmFx8XEInQaHcheBwU.9mCxCIZAMnfJgkGNKQnxj10b31Qiwwe', 'Administrator')
 ON DUPLICATE KEY UPDATE email=email;
 
 -- Standard Einstellungen
