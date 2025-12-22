@@ -33,6 +33,14 @@ try {
             require __DIR__ . '/orders.php';
             break;
             
+        case 'extras':
+            require __DIR__ . '/extras.php';
+            break;
+            
+        case 'bestsellers':
+            require __DIR__ . '/bestsellers.php';
+            break;
+            
         case 'settings':
             require __DIR__ . '/settings.php';
             break;
@@ -51,6 +59,33 @@ try {
             
         case 'health':
             jsonResponse(['status' => 'ok', 'timestamp' => date('c')]);
+            break;
+            
+        case '':
+            jsonResponse([
+                'name' => 'ORIA FRESH API',
+                'version' => '1.0.0',
+                'status' => 'running',
+                'endpoints' => [
+                    'GET /api/categories',
+                    'GET /api/products',
+                    'GET /api/products/{id}',
+                    'GET /api/bestsellers',
+                    'GET /api/settings',
+                    'GET /api/extras',
+                    'POST /api/orders',
+                    'GET /api/orders/{id}/status',
+                    'POST /api/admin/login',
+                    'GET /api/admin/me',
+                    'GET /api/admin/dashboard',
+                    'GET /api/admin/orders',
+                    'PUT /api/admin/orders/{id}/status',
+                    'GET /api/admin/products',
+                    'POST /api/admin/products',
+                    'PUT /api/admin/products/{id}',
+                    'DELETE /api/admin/products/{id}'
+                ]
+            ]);
             break;
             
         default:

@@ -6,13 +6,30 @@
 
 $db = getDB();
 $orderId = $segments[1] ?? null;
+$action = $segments[2] ?? null;
 
 switch ($requestMethod) {
     case 'GET':
-        $auth = requireAuth();
-        
-        if ($orderId) {
-            // Einzelne Bestellung
+        if ($orderId && $action === 'status') {
+            // Öffentlicher Status-Check (ohne Auth)
+            $stmt = $db->prepare('SELECT order_number, status, delivery_type, created_at FROM orders WHERE id = ? OR order_number = ?');
+            $stmt->execute([$orderId, $orderId]);
+            $order = $stmt->fetch();
+            
+            if (!$order) {
+                jsonResponse(['error' => 'Bestellung nicht gefunden'], 404);
+            }
+            
+            jsonResponse([
+                'order_number' => $order['order_number'],
+                'status' => $order['status'],
+                'delivery_type' => $order['delivery_type'],
+                'created_at' => $order['created_at']
+            ]);
+        } elseif ($orderId) {
+            // Einzelne Bestellung (Auth erforderlich)
+            $auth = requireAuth();
+            
             $stmt = $db->prepare('SELECT * FROM orders WHERE id = ?');
             $stmt->execute([$orderId]);
             $order = $stmt->fetch();
@@ -47,7 +64,9 @@ switch ($requestMethod) {
             
             jsonResponse($order);
         } else {
-            // Alle Bestellungen
+            // Alle Bestellungen (Auth erforderlich)
+            $auth = requireAuth();
+            
             $status = $_GET['status'] ?? null;
             $date = $_GET['date'] ?? null;
             
@@ -82,8 +101,18 @@ switch ($requestMethod) {
         // Neue Bestellung (öffentlich) - SERVERSEITIGE PREISBERECHNUNG
         $data = getJsonInput();
         
-        if (empty($data['items']) || empty($data['customer_name']) || empty($data['customer_email'])) {
-            jsonResponse(['error' => 'Pflichtfelder fehlen'], 400);
+        if (empty($data['items'])) {
+            jsonResponse(['error' => 'Keine Produkte im Warenkorb'], 400);
+        }
+        
+        // Customer-Daten validieren
+        $customerName = $data['customer_name'] ?? $data['customer']['name'] ?? '';
+        $customerEmail = $data['customer_email'] ?? $data['customer']['email'] ?? '';
+        $customerPhone = $data['customer_phone'] ?? $data['customer']['phone'] ?? '';
+        $deliveryType = $data['delivery_type'] ?? $data['customer']['delivery_type'] ?? 'PICKUP';
+        
+        if (empty($customerName)) {
+            jsonResponse(['error' => 'Name erforderlich'], 400);
         }
         
         // Preise serverseitig berechnen (Sicherheit!)
@@ -91,7 +120,8 @@ switch ($requestMethod) {
         $validatedItems = [];
         
         foreach ($data['items'] as $item) {
-            $productId = $item['product_id'] ?? null;
+            // Unterstützt beide Formate: product_id oder id
+            $productId = $item['product_id'] ?? $item['id'] ?? null;
             $quantity = max(1, (int)($item['quantity'] ?? 1));
             
             // Produkt aus DB laden
@@ -105,9 +135,11 @@ switch ($requestMethod) {
             
             // Extras berechnen
             $validatedExtras = [];
-            if (!empty($item['extras'])) {
-                foreach ($item['extras'] as $extraData) {
-                    $extraId = $extraData['id'] ?? null;
+            $itemExtras = $item['extras'] ?? $item['selectedExtras'] ?? [];
+            
+            if (!empty($itemExtras)) {
+                foreach ($itemExtras as $extraData) {
+                    $extraId = $extraData['id'] ?? $extraData['extra_id'] ?? null;
                     $extStmt = $db->prepare('SELECT id, name, price_cents FROM extras WHERE id = ? AND is_active = 1');
                     $extStmt->execute([$extraId]);
                     $extra = $extStmt->fetch();
@@ -151,14 +183,14 @@ switch ($requestMethod) {
         ');
         $stmt->execute([
             $orderNumber,
-            $data['customer_name'],
-            $data['customer_email'],
-            $data['customer_phone'] ?? null,
-            $data['delivery_type'] ?? 'PICKUP',
-            $data['address_line1'] ?? null,
-            $data['address_city'] ?? null,
-            $data['address_zip'] ?? null,
-            $data['notes'] ?? null,
+            $customerName,
+            $customerEmail,
+            $customerPhone,
+            $deliveryType,
+            $data['address_line1'] ?? $data['customer']['address'] ?? null,
+            $data['address_city'] ?? $data['customer']['city'] ?? null,
+            $data['address_zip'] ?? $data['customer']['zip'] ?? null,
+            $data['notes'] ?? $data['customer']['notes'] ?? null,
             $subtotalCents,
             $feesCents,
             $totalCents
@@ -195,14 +227,17 @@ switch ($requestMethod) {
         
         // E-Mail an Admin
         $total = number_format($totalCents / 100, 2, ',', '.');
-        $emailBody = "<h2>Neue Bestellung: $orderNumber</h2><p><strong>Kunde:</strong> {$data['customer_name']}<br><strong>E-Mail:</strong> {$data['customer_email']}<br><strong>Gesamt:</strong> {$total} €</p>";
+        $emailBody = "<h2>Neue Bestellung: $orderNumber</h2><p><strong>Kunde:</strong> $customerName<br><strong>E-Mail:</strong> $customerEmail<br><strong>Gesamt:</strong> {$total} €</p>";
         sendEmail(ADMIN_EMAIL, "Neue Bestellung: $orderNumber", $emailBody);
         
         // Bestätigung an Kunde
-        $customerBody = "<h2>Danke für deine Bestellung!</h2><p>Bestellnummer: <strong>$orderNumber</strong><br>Gesamt: <strong>{$total} €</strong><br><br>Bis gleich!<br>Dein ORIA FRESH Team</p>";
-        sendEmail($data['customer_email'], "Bestellbestätigung $orderNumber", $customerBody);
+        if (!empty($customerEmail)) {
+            $customerBody = "<h2>Danke für deine Bestellung!</h2><p>Bestellnummer: <strong>$orderNumber</strong><br>Gesamt: <strong>{$total} €</strong><br><br>Bis gleich!<br>Dein ORIA FRESH Team</p>";
+            sendEmail($customerEmail, "Bestellbestätigung $orderNumber", $customerBody);
+        }
         
         jsonResponse([
+            'id' => $newOrderId,
             'order_id' => $newOrderId,
             'order_number' => $orderNumber,
             'subtotal' => $subtotalCents / 100,
@@ -216,15 +251,16 @@ switch ($requestMethod) {
         if (!$orderId) jsonResponse(['error' => 'Bestell-ID erforderlich'], 400);
         
         $data = getJsonInput();
+        $newStatus = $_GET['new_status'] ?? $data['status'] ?? null;
         
-        if (isset($data['status'])) {
+        if ($newStatus) {
             $validStatuses = ['NEW', 'PAID', 'ACCEPTED', 'IN_PROGRESS', 'READY', 'OUT_FOR_DELIVERY', 'COMPLETED', 'CANCELED'];
-            if (!in_array($data['status'], $validStatuses)) {
+            if (!in_array($newStatus, $validStatuses)) {
                 jsonResponse(['error' => 'Ungültiger Status'], 400);
             }
             
             $stmt = $db->prepare('UPDATE orders SET status = ? WHERE id = ?');
-            $stmt->execute([$data['status'], $orderId]);
+            $stmt->execute([$newStatus, $orderId]);
         }
         
         jsonResponse(['message' => 'Bestellung aktualisiert']);
