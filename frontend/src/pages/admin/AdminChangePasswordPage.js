@@ -6,12 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../..
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { Lock, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../../lib/api';
 
 export default function AdminChangePasswordPage() {
-  const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -48,18 +45,15 @@ export default function AdminChangePasswordPage() {
 
     setLoading(true);
     try {
-      const token = getToken();
-      await axios.post(`${API}/admin/change-password`, {
+      await api.changePassword({
         current_password: formData.current_password,
         new_password: formData.new_password
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       
       toast.success('Passwort erfolgreich geändert!');
       setFormData({ current_password: '', new_password: '', confirm_password: '' });
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Fehler beim Ändern des Passworts');
+      toast.error(error.message || 'Fehler beim Ändern des Passworts');
     } finally {
       setLoading(false);
     }
