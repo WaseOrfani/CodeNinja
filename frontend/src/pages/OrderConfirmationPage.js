@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { CheckCircle, Clock, MapPin, Phone } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../lib/api';
 
 export default function OrderConfirmationPage() {
   const { orderId } = useParams();
@@ -14,12 +12,12 @@ export default function OrderConfirmationPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [orderRes, settingsRes] = await Promise.all([
-          axios.get(`${API}/orders/${orderId}/status`),
-          axios.get(`${API}/settings`)
+        const [orderData, settingsData] = await Promise.all([
+          api.getOrderStatus(orderId),
+          api.getSettings()
         ]);
-        setOrder(orderRes.data);
-        setSettings(settingsRes.data);
+        setOrder(orderData);
+        setSettings(settingsData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
