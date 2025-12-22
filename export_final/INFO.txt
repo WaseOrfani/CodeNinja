@@ -1,0 +1,103 @@
+================================================================================
+                         ORIA FRESH - INSTALLATION
+================================================================================
+
+📦 INHALT DES PAKETS
+--------------------
+- index.html          → React Frontend (SPA)
+- static/             → CSS & JavaScript
+- api/                → PHP Backend
+- 001_schema.sql      → Datenbank-Schema
+- 002_seed_menu.sql   → Produktdaten (31 Artikel)
+- .htaccess           → Apache Routing
+
+
+🚀 INSTALLATION (5 Minuten)
+---------------------------
+
+SCHRITT 1: DATENBANK ERSTELLEN
+   - Loggen Sie sich in phpMyAdmin ein
+   - Erstellen Sie eine neue Datenbank: "oriafresh"
+   - Importieren Sie: 001_schema.sql
+   - Importieren Sie: 002_seed_menu.sql
+
+SCHRITT 2: DATENBANK KONFIGURIEREN
+   - Öffnen Sie: api/config/database.php
+   - Passen Sie die Zugangsdaten an:
+
+     define('DB_HOST', 'localhost');
+     define('DB_NAME', 'oriafresh');
+     define('DB_USER', 'IHR_DB_BENUTZER');
+     define('DB_PASS', 'IHR_DB_PASSWORT');
+
+SCHRITT 3: DATEIEN HOCHLADEN
+   - Laden Sie ALLE Dateien in Ihr public_html/ Verzeichnis
+   - Achten Sie darauf, dass .htaccess mit hochgeladen wird
+
+SCHRITT 4: TESTEN
+   - Öffnen Sie: https://ihre-domain.de
+   - Der Shop sollte 31 Produkte anzeigen
+   - Testen Sie: https://ihre-domain.de/api/categories
+     (sollte JSON mit 5 Kategorien zurückgeben)
+
+
+🔐 ADMIN-ZUGANG
+---------------
+URL:      https://ihre-domain.de/admin
+E-Mail:   admin@oriafresh.de
+Passwort: admin123
+
+⚠️  WICHTIG: Ändern Sie das Passwort sofort nach dem ersten Login!
+
+
+📋 ADMIN-FUNKTIONEN
+-------------------
+- Dashboard mit Tagesstatistiken
+- Bestellungen verwalten (Status ändern)
+- Produkte anlegen/bearbeiten/löschen
+- Kategorien verwalten
+- Preise ändern
+- Einstellungen anpassen
+
+
+🗂️ DATENBANK-TABELLEN
+----------------------
+- categories     → Produktkategorien (5 Stück)
+- products       → Produkte (31 Stück)
+- extras         → Zusatzoptionen (5 Stück)
+- product_extras → Zuordnung Produkt ↔ Extra
+- orders         → Bestellungen
+- order_items    → Bestellpositionen
+- order_item_extras → Extras pro Position
+- admins         → Admin-Benutzer
+- settings       → Shop-Einstellungen
+
+
+🔧 TECHNISCHE DETAILS
+---------------------
+- Frontend: React 19, Tailwind CSS
+- Backend: PHP 8.2, MySQL/MariaDB
+- Auth: JWT Token
+- API: REST mit JSON
+
+
+📞 KONTAKTDATEN (im System hinterlegt)
+--------------------------------------
+ORIA FRESH
+Kirchenplatz 9
+18119 Rostock-Warnemünde
+Tel: +49 381 7704 - 0
+E-Mail: info@oriafresh.de
+
+
+⚠️  SICHERHEITSHINWEISE
+-----------------------
+1. Admin-Passwort SOFORT ändern
+2. JWT_SECRET in api/functions.php ändern
+3. HTTPS in .htaccess aktivieren
+4. Regelmäßige Backups erstellen
+
+
+================================================================================
+                    © 2025 ORIA FRESH - Self-Hosted Version
+================================================================================
