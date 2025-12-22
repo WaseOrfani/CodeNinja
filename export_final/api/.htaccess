@@ -1,35 +1,17 @@
-# ORIA FRESH - Apache Konfiguration
+# ORIA FRESH - Apache Rewrite Rules
 
 RewriteEngine On
-RewriteBase /
 
-# API Anfragen an api/index.php weiterleiten
-RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^api/(.*)$ api/index.php [L,QSA]
+# CORS Headers
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
 
-# Admin Panel
+# Handle OPTIONS preflight requests
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# API Routing - alles auf index.php umleiten
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} ^/admin
-RewriteRule ^admin(.*)$ admin/index.php [L,QSA]
-
-# Uploads direkt liefern
-RewriteCond %{REQUEST_URI} ^/uploads/
-RewriteRule ^uploads/(.*)$ uploads/$1 [L]
-
-# PHP Fehler (nur für Entwicklung)
-# php_flag display_errors on
-# php_value error_reporting E_ALL
-
-# Sicherheit
-<FilesMatch "\.(sql|env|md)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# CORS für API
-<IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
-</IfModule>
+RewriteRule ^(.*)$ /api/index.php [QSA,L]
