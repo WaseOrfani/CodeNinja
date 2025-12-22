@@ -112,8 +112,8 @@ export default function QRCheckoutPage() {
         source: 'qr' // QR tracking flag
       };
 
-      const response = await axios.post(`${API}/orders`, orderData);
-      return response.data;
+      const orderResult = await api.createOrder(orderData);
+      return orderResult;
     } catch (error) {
       console.error('Order creation error:', error);
       toast.error('Fehler bei der Bestellung');
