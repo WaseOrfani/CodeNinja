@@ -7,8 +7,8 @@ $db = getDB();
 
 switch ($requestMethod) {
     case 'GET':
-        // Alle Kategorien abrufen
-        $stmt = $db->query('SELECT id, name, slug, icon, sort_order FROM categories ORDER BY sort_order ASC');
+        // Alle aktiven Kategorien abrufen
+        $stmt = $db->query('SELECT id, slug, name, sort_order FROM categories WHERE is_active = 1 ORDER BY sort_order ASC');
         $categories = $stmt->fetchAll();
         
         // Produktanzahl pro Kategorie
@@ -25,11 +25,10 @@ switch ($requestMethod) {
         requireAuth();
         $data = getJsonInput();
         
-        $stmt = $db->prepare('INSERT INTO categories (name, slug, icon, sort_order) VALUES (?, ?, ?, ?)');
+        $stmt = $db->prepare('INSERT INTO categories (name, slug, sort_order) VALUES (?, ?, ?)');
         $stmt->execute([
             $data['name'],
             createSlug($data['name']),
-            $data['icon'] ?? '',
             $data['sort_order'] ?? 0
         ]);
         

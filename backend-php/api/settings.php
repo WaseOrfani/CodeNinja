@@ -7,48 +7,46 @@ $db = getDB();
 
 switch ($requestMethod) {
     case 'GET':
-        // Alle Einstellungen laden
         $stmt = $db->query('SELECT setting_key, setting_value FROM settings');
-        $settings = [];
+        $rows = $stmt->fetchAll();
         
-        while ($row = $stmt->fetch()) {
-            $value = $row['setting_value'];
-            // JSON dekodieren wenn möglich
-            $decoded = json_decode($value, true);
-            $settings[$row['setting_key']] = $decoded !== null ? $decoded : $value;
+        $settings = [];
+        foreach ($rows as $row) {
+            $settings[$row['setting_key']] = $row['setting_value'];
         }
         
-        // Standard-Werte wenn leer
+        // Standard-Werte falls nicht in DB
         $defaults = [
             'restaurant_name' => 'ORIA FRESH',
             'address' => 'Kirchenplatz 9, 18119 Rostock-Warnemünde',
-            'phone' => '+49 381 7704 – 0',
+            'phone' => '+49 381 7704 - 0',
             'email' => 'info@oriafresh.de',
-            'pickup_slots' => ['sofort', '15 min', '30 min', '45 min', '60 min'],
-            'qr_bonus' => [
-                'enabled' => true,
-                'bonus_name' => 'Golden Cheese Dip',
-                'bonus_value' => 3.90,
-                'bonus_type' => 'cheese_dip'
-            ]
+            'opening_hours' => 'Mo-So: 11:00 - 22:00',
+            'delivery_fee' => '0',
+            'min_order_delivery' => '15',
+            'min_order_pickup' => '0',
+            'paypal_enabled' => 'false',
+            'delivery_enabled' => 'true',
+            'pickup_enabled' => 'true'
         ];
         
-        $result = array_merge($defaults, $settings);
-        jsonResponse($result);
+        foreach ($defaults as $key => $value) {
+            if (!isset($settings[$key])) {
+                $settings[$key] = $value;
+            }
+        }
+        
+        jsonResponse($settings);
         break;
         
     case 'PUT':
         requireAuth();
         $data = getJsonInput();
         
+        $stmt = $db->prepare('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)');
+        
         foreach ($data as $key => $value) {
-            $valueStr = is_array($value) ? json_encode($value) : $value;
-            
-            $stmt = $db->prepare('
-                INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)
-                ON DUPLICATE KEY UPDATE setting_value = ?
-            ');
-            $stmt->execute([$key, $valueStr, $valueStr]);
+            $stmt->execute([$key, $value]);
         }
         
         jsonResponse(['message' => 'Einstellungen gespeichert']);

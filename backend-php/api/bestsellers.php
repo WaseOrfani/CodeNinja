@@ -1,29 +1,31 @@
 <?php
 /**
  * ORIA FRESH - Bestseller API
+ * Gibt die beliebtesten Produkte zurück (basierend auf Bestellungen)
  */
 
 $db = getDB();
 
 if ($requestMethod !== 'GET') {
-    jsonResponse(['error' => 'Nur GET erlaubt'], 405);
+    jsonResponse(['error' => 'Methode nicht erlaubt'], 405);
 }
 
+// Bestseller basierend auf Bestellungen oder manuell sortiert
+// Für MVP: Erste 6 Burger-Produkte als Bestseller
 $stmt = $db->query('
-    SELECT p.*, c.name as category 
-    FROM products p 
-    LEFT JOIN categories c ON p.category_id = c.id 
-    WHERE p.is_active = 1 AND p.is_bestseller = 1 
-    ORDER BY p.name ASC 
-    LIMIT 8
+    SELECT p.id, p.slug, p.name, p.description, p.price_cents, p.image_path, p.patties, p.is_menu,
+           c.name as category, c.slug as category_slug
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.is_active = 1 AND c.slug = "burger"
+    ORDER BY p.sort_order ASC
+    LIMIT 6
 ');
-
 $products = $stmt->fetchAll();
 
+// Preise konvertieren
 foreach ($products as &$product) {
-    $varStmt = $db->prepare('SELECT name, price, includes FROM product_variants WHERE product_id = ?');
-    $varStmt->execute([$product['id']]);
-    $product['variants'] = $varStmt->fetchAll();
+    $product['price'] = $product['price_cents'] / 100;
 }
 
 jsonResponse($products);
