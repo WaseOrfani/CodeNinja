@@ -5,12 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { Eye, Clock, Phone, Mail, MapPin } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../../lib/api';
 
 export default function AdminOrdersPage() {
-  const { getToken } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -23,12 +20,9 @@ export default function AdminOrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const token = getToken();
       const params = statusFilter !== 'all' ? `?status=${statusFilter}` : '';
-      const response = await axios.get(`${API}/admin/orders${params}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setOrders(response.data);
+      const ordersData = await api.getOrders(params);
+      setOrders(Array.isArray(ordersData) ? ordersData : []);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Fehler beim Laden der Bestellungen');
@@ -39,10 +33,7 @@ export default function AdminOrdersPage() {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const token = getToken();
-      await axios.put(`${API}/admin/orders/${orderId}/status?new_status=${newStatus}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.updateOrderStatus(orderId, newStatus);
       toast.success('Status aktualisiert');
       fetchOrders();
       if (selectedOrder?.id === orderId) {
