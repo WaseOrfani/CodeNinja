@@ -2,10 +2,57 @@
 /**
  * ORIA FRESH - Produkte API (Lieferando-optimiert)
  * Preise in Cents, Extras als separate Tabelle
+ * Format kompatibel mit React-Frontend
  */
 
 $db = getDB();
 $productId = $segments[1] ?? null;
+
+// Hilfsfunktion zum Formatieren eines Produkts für das Frontend
+function formatProductForFrontend($product, $db) {
+    $price = $product['price_cents'] / 100;
+    
+    // Extras laden
+    $extStmt = $db->prepare('
+        SELECT e.id, e.slug, e.name, e.price_cents 
+        FROM extras e 
+        JOIN product_extras pe ON e.id = pe.extra_id 
+        WHERE pe.product_id = ? AND e.is_active = 1
+        ORDER BY e.sort_order
+    ');
+    $extStmt->execute([$product['id']]);
+    $extras = $extStmt->fetchAll();
+    
+    foreach ($extras as &$extra) {
+        $extra['price'] = $extra['price_cents'] / 100;
+    }
+    
+    // Bild-URL erstellen
+    $image = $product['image_path'] 
+        ? '/uploads/products/' . $product['image_path']
+        : 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400';
+    
+    return [
+        'id' => $product['id'],
+        'slug' => $product['slug'],
+        'name' => $product['name'],
+        'description' => $product['description'] ?? '',
+        'category' => $product['category'] ?? $product['category_name'] ?? '',
+        'category_slug' => $product['category_slug'] ?? '',
+        'image' => $image,
+        'price' => $price,
+        'price_cents' => $product['price_cents'],
+        'patties' => $product['patties'],
+        'is_menu' => (bool)$product['is_menu'],
+        'is_active' => (bool)$product['is_active'],
+        'is_featured' => false, // Kann später erweitert werden
+        'is_bestseller' => $product['sort_order'] <= 20, // Erste Produkte als Bestseller
+        'variants' => [
+            ['name' => 'Standard', 'price' => $price]
+        ],
+        'extras' => $extras
+    ];
+}
 
 switch ($requestMethod) {
     case 'GET':
@@ -15,34 +62,16 @@ switch ($requestMethod) {
                 SELECT p.*, c.name as category_name, c.slug as category_slug 
                 FROM products p 
                 LEFT JOIN categories c ON p.category_id = c.id 
-                WHERE p.id = ? AND p.is_active = 1
+                WHERE (p.id = ? OR p.slug = ?) AND p.is_active = 1
             ');
-            $stmt->execute([$productId]);
+            $stmt->execute([$productId, $productId]);
             $product = $stmt->fetch();
             
             if (!$product) {
                 jsonResponse(['error' => 'Produkt nicht gefunden'], 404);
             }
             
-            // Preis in Euro konvertieren
-            $product['price'] = $product['price_cents'] / 100;
-            
-            // Extras laden
-            $extStmt = $db->prepare('
-                SELECT e.id, e.slug, e.name, e.price_cents 
-                FROM extras e 
-                JOIN product_extras pe ON e.id = pe.extra_id 
-                WHERE pe.product_id = ? AND e.is_active = 1
-                ORDER BY e.sort_order
-            ');
-            $extStmt->execute([$productId]);
-            $extras = $extStmt->fetchAll();
-            
-            // Extras Preise konvertieren
-            foreach ($extras as &$extra) {
-                $extra['price'] = $extra['price_cents'] / 100;
-            }
-            $product['extras'] = $extras;
+            $formatted = formatProductForFrontend($product, $db);
             
             // Menü-Bestandteile laden (wenn is_menu=1)
             if ($product['is_menu']) {
@@ -53,10 +82,10 @@ switch ($requestMethod) {
                     WHERE mi.menu_id = ?
                 ');
                 $menuStmt->execute([$productId]);
-                $product['menu_items'] = $menuStmt->fetchAll();
+                $formatted['menu_items'] = $menuStmt->fetchAll();
             }
             
-            jsonResponse($product);
+            jsonResponse($formatted);
         } else {
             // Alle Produkte (mit Filter)
             $category = $_GET['category'] ?? null;
@@ -86,28 +115,12 @@ switch ($requestMethod) {
             $stmt->execute($params);
             $products = $stmt->fetchAll();
             
-            // Preise konvertieren und Extras laden
-            foreach ($products as &$product) {
-                $product['price'] = $product['price_cents'] / 100;
-                
-                // Extras für jedes Produkt
-                $extStmt = $db->prepare('
-                    SELECT e.id, e.slug, e.name, e.price_cents 
-                    FROM extras e 
-                    JOIN product_extras pe ON e.id = pe.extra_id 
-                    WHERE pe.product_id = ? AND e.is_active = 1
-                    ORDER BY e.sort_order
-                ');
-                $extStmt->execute([$product['id']]);
-                $extras = $extStmt->fetchAll();
-                
-                foreach ($extras as &$extra) {
-                    $extra['price'] = $extra['price_cents'] / 100;
-                }
-                $product['extras'] = $extras;
+            $result = [];
+            foreach ($products as $product) {
+                $result[] = formatProductForFrontend($product, $db);
             }
             
-            jsonResponse($products);
+            jsonResponse($result);
         }
         break;
         
