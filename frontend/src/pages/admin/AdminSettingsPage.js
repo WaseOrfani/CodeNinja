@@ -63,10 +63,7 @@ export default function AdminSettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const token = getToken();
-      await axios.put(`${API}/admin/settings`, settings, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.updateSettings(settings);
       toast.success('Einstellungen gespeichert');
     } catch (error) {
       toast.error('Fehler beim Speichern');
