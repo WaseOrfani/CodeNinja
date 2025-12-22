@@ -111,6 +111,7 @@ export const api = {
   deleteProduct: (id) => apiDelete(`/admin/products/${id}`),
   updateSettings: (data) => apiPut('/admin/settings', data),
   changePassword: (data) => apiPost('/admin/change-password', data),
+  changePassword: (data) => apiPost('/admin/change-password', data),
 };
 
 export default api;
