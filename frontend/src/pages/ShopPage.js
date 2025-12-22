@@ -4,9 +4,7 @@ import { Input } from '../components/ui/input';
 import { ProductCard } from '../components/ProductCard';
 import { Search, Filter, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../lib/api';
 
 export default function ShopPage() {
   const { category: categoryParam } = useParams();
@@ -21,12 +19,12 @@ export default function ShopPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsRes, categoriesRes] = await Promise.all([
-          axios.get(`${API}/products`),
-          axios.get(`${API}/categories`)
+        const [productsData, categoriesData] = await Promise.all([
+          api.getProducts(),
+          api.getCategories()
         ]);
-        setProducts(productsRes.data);
-        setCategories(categoriesRes.data);
+        setProducts(productsData);
+        setCategories(categoriesData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
