@@ -1,6 +1,7 @@
 <?php
 /**
- * ORIA FRESH - Bestellungen API
+ * ORIA FRESH - Bestellungen API (Lieferando-optimiert)
+ * Preise in Cents, serverseitige Preisberechnung
  */
 
 $db = getDB();
@@ -20,19 +21,33 @@ switch ($requestMethod) {
                 jsonResponse(['error' => 'Bestellung nicht gefunden'], 404);
             }
             
+            // Preise in Euro
+            $order['subtotal'] = $order['subtotal_cents'] / 100;
+            $order['fees'] = $order['fees_cents'] / 100;
+            $order['total'] = $order['total_cents'] / 100;
+            
             // Positionen laden
             $itemsStmt = $db->prepare('SELECT * FROM order_items WHERE order_id = ?');
             $itemsStmt->execute([$orderId]);
-            $order['items'] = $itemsStmt->fetchAll();
+            $items = $itemsStmt->fetchAll();
             
-            // Extras dekodieren
-            foreach ($order['items'] as &$item) {
-                $item['extras'] = json_decode($item['extras'], true) ?? [];
+            foreach ($items as &$item) {
+                $item['unit_price'] = $item['unit_cents'] / 100;
+                
+                // Extras laden
+                $extStmt = $db->prepare('SELECT * FROM order_item_extras WHERE order_item_id = ?');
+                $extStmt->execute([$item['id']]);
+                $extras = $extStmt->fetchAll();
+                foreach ($extras as &$ext) {
+                    $ext['unit_price'] = $ext['unit_cents'] / 100;
+                }
+                $item['extras'] = $extras;
             }
+            $order['items'] = $items;
             
             jsonResponse($order);
         } else {
-            // Alle Bestellungen (Admin)
+            // Alle Bestellungen
             $status = $_GET['status'] ?? null;
             $date = $_GET['date'] ?? null;
             
@@ -43,7 +58,6 @@ switch ($requestMethod) {
                 $sql .= ' AND status = ?';
                 $params[] = $status;
             }
-            
             if ($date) {
                 $sql .= ' AND DATE(created_at) = ?';
                 $params[] = $date;
@@ -55,88 +69,144 @@ switch ($requestMethod) {
             $stmt->execute($params);
             $orders = $stmt->fetchAll();
             
+            foreach ($orders as &$order) {
+                $order['subtotal'] = $order['subtotal_cents'] / 100;
+                $order['total'] = $order['total_cents'] / 100;
+            }
+            
             jsonResponse($orders);
         }
         break;
         
     case 'POST':
-        // Neue Bestellung (öffentlich)
+        // Neue Bestellung (öffentlich) - SERVERSEITIGE PREISBERECHNUNG
         $data = getJsonInput();
         
-        // Validierung
         if (empty($data['items']) || empty($data['customer_name']) || empty($data['customer_email'])) {
             jsonResponse(['error' => 'Pflichtfelder fehlen'], 400);
         }
         
-        $orderNumber = generateOrderNumber();
+        // Preise serverseitig berechnen (Sicherheit!)
+        $subtotalCents = 0;
+        $validatedItems = [];
+        
+        foreach ($data['items'] as $item) {
+            $productId = $item['product_id'] ?? null;
+            $quantity = max(1, (int)($item['quantity'] ?? 1));
+            
+            // Produkt aus DB laden
+            $prodStmt = $db->prepare('SELECT id, name, price_cents FROM products WHERE id = ? AND is_active = 1');
+            $prodStmt->execute([$productId]);
+            $product = $prodStmt->fetch();
+            
+            if (!$product) continue;
+            
+            $itemCents = $product['price_cents'] * $quantity;
+            
+            // Extras berechnen
+            $validatedExtras = [];
+            if (!empty($item['extras'])) {
+                foreach ($item['extras'] as $extraData) {
+                    $extraId = $extraData['id'] ?? null;
+                    $extStmt = $db->prepare('SELECT id, name, price_cents FROM extras WHERE id = ? AND is_active = 1');
+                    $extStmt->execute([$extraId]);
+                    $extra = $extStmt->fetch();
+                    
+                    if ($extra) {
+                        $extraQty = max(1, (int)($extraData['quantity'] ?? 1));
+                        $itemCents += $extra['price_cents'] * $extraQty * $quantity;
+                        $validatedExtras[] = [
+                            'extra_id' => $extra['id'],
+                            'name' => $extra['name'],
+                            'unit_cents' => $extra['price_cents'],
+                            'quantity' => $extraQty
+                        ];
+                    }
+                }
+            }
+            
+            $subtotalCents += $itemCents;
+            $validatedItems[] = [
+                'product_id' => $product['id'],
+                'name' => $product['name'],
+                'unit_cents' => $product['price_cents'],
+                'quantity' => $quantity,
+                'notes' => $item['notes'] ?? null,
+                'extras' => $validatedExtras
+            ];
+        }
+        
+        if (empty($validatedItems)) {
+            jsonResponse(['error' => 'Keine gültigen Produkte'], 400);
+        }
+        
+        $feesCents = 0; // Liefergebühr etc.
+        $totalCents = $subtotalCents + $feesCents;
+        $orderNumber = 'OF-' . date('ymd') . '-' . strtoupper(substr(uniqid(), -5));
         
         // Bestellung erstellen
         $stmt = $db->prepare('
-            INSERT INTO orders (order_number, customer_name, customer_email, customer_phone, pickup_time, notes, payment_method, subtotal, total, source, qr_bonus_applied) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO orders (order_number, customer_name, customer_email, customer_phone, delivery_type, address_line1, address_city, address_zip, notes, subtotal_cents, fees_cents, total_cents) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ');
         $stmt->execute([
             $orderNumber,
             $data['customer_name'],
             $data['customer_email'],
-            $data['customer_phone'] ?? '',
-            $data['pickup_time'] ?? 'sofort',
-            $data['notes'] ?? '',
-            $data['payment_method'] ?? 'pickup',
-            $data['subtotal'] ?? 0,
-            $data['total'] ?? 0,
-            $data['source'] ?? 'web',
-            json_encode($data['qr_bonus_applied'] ?? null)
+            $data['customer_phone'] ?? null,
+            $data['delivery_type'] ?? 'PICKUP',
+            $data['address_line1'] ?? null,
+            $data['address_city'] ?? null,
+            $data['address_zip'] ?? null,
+            $data['notes'] ?? null,
+            $subtotalCents,
+            $feesCents,
+            $totalCents
         ]);
         
-        $orderId = $db->lastInsertId();
+        $newOrderId = $db->lastInsertId();
         
-        // Positionen hinzufügen
-        $itemStmt = $db->prepare('
-            INSERT INTO order_items (order_id, product_name, variant_name, variant_price, quantity, extras, item_total) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ');
+        // Positionen speichern
+        $itemStmt = $db->prepare('INSERT INTO order_items (order_id, product_id, name_snapshot, unit_cents, quantity, notes) VALUES (?, ?, ?, ?, ?, ?)');
+        $extraStmt = $db->prepare('INSERT INTO order_item_extras (order_item_id, extra_id, name_snapshot, unit_cents, quantity) VALUES (?, ?, ?, ?, ?)');
         
-        foreach ($data['items'] as $item) {
+        foreach ($validatedItems as $item) {
             $itemStmt->execute([
-                $orderId,
-                $item['product_name'],
-                $item['variant'] ?? '',
-                $item['variant_price'] ?? 0,
-                $item['quantity'] ?? 1,
-                json_encode($item['extras'] ?? []),
-                $item['total'] ?? 0
+                $newOrderId,
+                $item['product_id'],
+                $item['name'],
+                $item['unit_cents'],
+                $item['quantity'],
+                $item['notes']
             ]);
+            
+            $orderItemId = $db->lastInsertId();
+            
+            foreach ($item['extras'] as $extra) {
+                $extraStmt->execute([
+                    $orderItemId,
+                    $extra['extra_id'],
+                    $extra['name'],
+                    $extra['unit_cents'],
+                    $extra['quantity']
+                ]);
+            }
         }
         
-        // E-Mail an Admin senden
-        $emailBody = "
-            <h2>Neue Bestellung bei ORIA FRESH</h2>
-            <p><strong>Bestellnummer:</strong> $orderNumber</p>
-            <p><strong>Kunde:</strong> {$data['customer_name']}</p>
-            <p><strong>E-Mail:</strong> {$data['customer_email']}</p>
-            <p><strong>Telefon:</strong> {$data['customer_phone']}</p>
-            <p><strong>Abholzeit:</strong> {$data['pickup_time']}</p>
-            <p><strong>Gesamt:</strong> €" . number_format($data['total'], 2) . "</p>
-        ";
+        // E-Mail an Admin
+        $total = number_format($totalCents / 100, 2, ',', '.');
+        $emailBody = "<h2>Neue Bestellung: $orderNumber</h2><p><strong>Kunde:</strong> {$data['customer_name']}<br><strong>E-Mail:</strong> {$data['customer_email']}<br><strong>Gesamt:</strong> {$total} €</p>";
         sendEmail(ADMIN_EMAIL, "Neue Bestellung: $orderNumber", $emailBody);
         
         // Bestätigung an Kunde
-        $customerBody = "
-            <h2>Danke für deine Bestellung!</h2>
-            <p>Hallo {$data['customer_name']},</p>
-            <p>Deine Bestellung <strong>$orderNumber</strong> wurde erfolgreich aufgenommen.</p>
-            <p><strong>Abholzeit:</strong> {$data['pickup_time']}</p>
-            <p><strong>Adresse:</strong> Kirchenplatz 9, 18119 Rostock-Warnemünde</p>
-            <p><strong>Gesamt:</strong> €" . number_format($data['total'], 2) . "</p>
-            <br>
-            <p>Bis gleich!<br>Dein ORIA FRESH Team</p>
-        ";
+        $customerBody = "<h2>Danke für deine Bestellung!</h2><p>Bestellnummer: <strong>$orderNumber</strong><br>Gesamt: <strong>{$total} €</strong><br><br>Bis gleich!<br>Dein ORIA FRESH Team</p>";
         sendEmail($data['customer_email'], "Bestellbestätigung $orderNumber", $customerBody);
         
         jsonResponse([
-            'order_id' => $orderId,
+            'order_id' => $newOrderId,
             'order_number' => $orderNumber,
+            'subtotal' => $subtotalCents / 100,
+            'total' => $totalCents / 100,
             'message' => 'Bestellung erfolgreich'
         ], 201);
         break;
@@ -147,10 +217,17 @@ switch ($requestMethod) {
         
         $data = getJsonInput();
         
-        $stmt = $db->prepare('UPDATE orders SET status = ? WHERE id = ?');
-        $stmt->execute([$data['status'], $orderId]);
+        if (isset($data['status'])) {
+            $validStatuses = ['NEW', 'PAID', 'ACCEPTED', 'IN_PROGRESS', 'READY', 'OUT_FOR_DELIVERY', 'COMPLETED', 'CANCELED'];
+            if (!in_array($data['status'], $validStatuses)) {
+                jsonResponse(['error' => 'Ungültiger Status'], 400);
+            }
+            
+            $stmt = $db->prepare('UPDATE orders SET status = ? WHERE id = ?');
+            $stmt->execute([$data['status'], $orderId]);
+        }
         
-        jsonResponse(['message' => 'Status aktualisiert']);
+        jsonResponse(['message' => 'Bestellung aktualisiert']);
         break;
         
     default:

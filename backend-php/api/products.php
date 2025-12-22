@@ -1,6 +1,7 @@
 <?php
 /**
- * ORIA FRESH - Produkte API
+ * ORIA FRESH - Produkte API (Lieferando-optimiert)
+ * Preise in Cents, Extras als separate Tabelle
  */
 
 $db = getDB();
@@ -23,21 +24,43 @@ switch ($requestMethod) {
                 jsonResponse(['error' => 'Produkt nicht gefunden'], 404);
             }
             
-            // Varianten laden
-            $varStmt = $db->prepare('SELECT id, name, price, includes FROM product_variants WHERE product_id = ?');
-            $varStmt->execute([$productId]);
-            $product['variants'] = $varStmt->fetchAll();
+            // Preis in Euro konvertieren
+            $product['price'] = $product['price_cents'] / 100;
             
             // Extras laden
-            $extStmt = $db->prepare('SELECT id, name, price FROM product_extras WHERE product_id = ?');
+            $extStmt = $db->prepare('
+                SELECT e.id, e.slug, e.name, e.price_cents 
+                FROM extras e 
+                JOIN product_extras pe ON e.id = pe.extra_id 
+                WHERE pe.product_id = ? AND e.is_active = 1
+                ORDER BY e.sort_order
+            ');
             $extStmt->execute([$productId]);
-            $product['extras'] = $extStmt->fetchAll();
+            $extras = $extStmt->fetchAll();
+            
+            // Extras Preise konvertieren
+            foreach ($extras as &$extra) {
+                $extra['price'] = $extra['price_cents'] / 100;
+            }
+            $product['extras'] = $extras;
+            
+            // Menü-Bestandteile laden (wenn is_menu=1)
+            if ($product['is_menu']) {
+                $menuStmt = $db->prepare('
+                    SELECT p.id, p.slug, p.name, p.price_cents, mi.quantity
+                    FROM menu_items mi
+                    JOIN products p ON mi.item_id = p.id
+                    WHERE mi.menu_id = ?
+                ');
+                $menuStmt->execute([$productId]);
+                $product['menu_items'] = $menuStmt->fetchAll();
+            }
             
             jsonResponse($product);
         } else {
             // Alle Produkte (mit Filter)
             $category = $_GET['category'] ?? null;
-            $featured = $_GET['featured'] ?? null;
+            $isMenu = $_GET['is_menu'] ?? null;
             
             $sql = '
                 SELECT p.*, c.name as category, c.slug as category_slug 
@@ -52,25 +75,36 @@ switch ($requestMethod) {
                 $params[] = $category;
             }
             
-            if ($featured) {
-                $sql .= ' AND p.is_featured = 1';
+            if ($isMenu !== null) {
+                $sql .= ' AND p.is_menu = ?';
+                $params[] = (int)$isMenu;
             }
             
-            $sql .= ' ORDER BY p.is_bestseller DESC, p.is_featured DESC, p.name ASC';
+            $sql .= ' ORDER BY c.sort_order ASC, p.sort_order ASC';
             
             $stmt = $db->prepare($sql);
             $stmt->execute($params);
             $products = $stmt->fetchAll();
             
-            // Varianten für jedes Produkt
+            // Preise konvertieren und Extras laden
             foreach ($products as &$product) {
-                $varStmt = $db->prepare('SELECT name, price, includes FROM product_variants WHERE product_id = ?');
-                $varStmt->execute([$product['id']]);
-                $product['variants'] = $varStmt->fetchAll();
+                $product['price'] = $product['price_cents'] / 100;
                 
-                $extStmt = $db->prepare('SELECT name, price FROM product_extras WHERE product_id = ?');
+                // Extras für jedes Produkt
+                $extStmt = $db->prepare('
+                    SELECT e.id, e.slug, e.name, e.price_cents 
+                    FROM extras e 
+                    JOIN product_extras pe ON e.id = pe.extra_id 
+                    WHERE pe.product_id = ? AND e.is_active = 1
+                    ORDER BY e.sort_order
+                ');
                 $extStmt->execute([$product['id']]);
-                $product['extras'] = $extStmt->fetchAll();
+                $extras = $extStmt->fetchAll();
+                
+                foreach ($extras as &$extra) {
+                    $extra['price'] = $extra['price_cents'] / 100;
+                }
+                $product['extras'] = $extras;
             }
             
             jsonResponse($products);
@@ -81,39 +115,33 @@ switch ($requestMethod) {
         requireAuth();
         $data = getJsonInput();
         
+        // Preis in Cents umrechnen
+        $priceCents = isset($data['price']) ? (int)($data['price'] * 100) : 0;
+        
         $stmt = $db->prepare('
-            INSERT INTO products (name, slug, description, category_id, image, allergens, is_vegan, is_spicy, is_featured, is_bestseller, is_active) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO products (category_id, slug, name, description, price_cents, image_path, patties, is_menu, is_active, sort_order) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ');
         $stmt->execute([
-            $data['name'],
+            $data['category_id'],
             createSlug($data['name']),
+            $data['name'],
             $data['description'] ?? '',
-            $data['category_id'] ?? null,
-            $data['image'] ?? '',
-            $data['allergens'] ?? '',
-            $data['is_vegan'] ?? 0,
-            $data['is_spicy'] ?? 0,
-            $data['is_featured'] ?? 0,
-            $data['is_bestseller'] ?? 0,
-            $data['is_active'] ?? 1
+            $priceCents,
+            $data['image_path'] ?? null,
+            $data['patties'] ?? null,
+            $data['is_menu'] ?? 0,
+            $data['is_active'] ?? 1,
+            $data['sort_order'] ?? 0
         ]);
         
         $productId = $db->lastInsertId();
         
-        // Varianten hinzufügen
-        if (!empty($data['variants'])) {
-            $varStmt = $db->prepare('INSERT INTO product_variants (product_id, name, price, includes) VALUES (?, ?, ?, ?)');
-            foreach ($data['variants'] as $variant) {
-                $varStmt->execute([$productId, $variant['name'], $variant['price'], $variant['includes'] ?? null]);
-            }
-        }
-        
-        // Extras hinzufügen
-        if (!empty($data['extras'])) {
-            $extStmt = $db->prepare('INSERT INTO product_extras (product_id, name, price) VALUES (?, ?, ?)');
-            foreach ($data['extras'] as $extra) {
-                $extStmt->execute([$productId, $extra['name'], $extra['price']]);
+        // Extras zuweisen
+        if (!empty($data['extra_ids'])) {
+            $extStmt = $db->prepare('INSERT INTO product_extras (product_id, extra_id) VALUES (?, ?)');
+            foreach ($data['extra_ids'] as $extraId) {
+                $extStmt->execute([$productId, $extraId]);
             }
         }
         
@@ -125,42 +153,32 @@ switch ($requestMethod) {
         if (!$productId) jsonResponse(['error' => 'Produkt-ID erforderlich'], 400);
         
         $data = getJsonInput();
+        $priceCents = isset($data['price']) ? (int)($data['price'] * 100) : null;
         
-        $stmt = $db->prepare('
-            UPDATE products SET 
-                name = ?, description = ?, category_id = ?, image = ?, allergens = ?,
-                is_vegan = ?, is_spicy = ?, is_featured = ?, is_bestseller = ?, is_active = ?
-            WHERE id = ?
-        ');
-        $stmt->execute([
-            $data['name'],
-            $data['description'] ?? '',
-            $data['category_id'] ?? null,
-            $data['image'] ?? '',
-            $data['allergens'] ?? '',
-            $data['is_vegan'] ?? 0,
-            $data['is_spicy'] ?? 0,
-            $data['is_featured'] ?? 0,
-            $data['is_bestseller'] ?? 0,
-            $data['is_active'] ?? 1,
-            $productId
-        ]);
+        $updates = [];
+        $params = [];
         
-        // Varianten aktualisieren
-        $db->prepare('DELETE FROM product_variants WHERE product_id = ?')->execute([$productId]);
-        if (!empty($data['variants'])) {
-            $varStmt = $db->prepare('INSERT INTO product_variants (product_id, name, price, includes) VALUES (?, ?, ?, ?)');
-            foreach ($data['variants'] as $variant) {
-                $varStmt->execute([$productId, $variant['name'], $variant['price'], $variant['includes'] ?? null]);
-            }
+        if (isset($data['name'])) { $updates[] = 'name = ?'; $params[] = $data['name']; }
+        if (isset($data['description'])) { $updates[] = 'description = ?'; $params[] = $data['description']; }
+        if ($priceCents !== null) { $updates[] = 'price_cents = ?'; $params[] = $priceCents; }
+        if (isset($data['image_path'])) { $updates[] = 'image_path = ?'; $params[] = $data['image_path']; }
+        if (isset($data['patties'])) { $updates[] = 'patties = ?'; $params[] = $data['patties']; }
+        if (isset($data['is_menu'])) { $updates[] = 'is_menu = ?'; $params[] = $data['is_menu']; }
+        if (isset($data['is_active'])) { $updates[] = 'is_active = ?'; $params[] = $data['is_active']; }
+        if (isset($data['sort_order'])) { $updates[] = 'sort_order = ?'; $params[] = $data['sort_order']; }
+        
+        if (!empty($updates)) {
+            $params[] = $productId;
+            $sql = 'UPDATE products SET ' . implode(', ', $updates) . ' WHERE id = ?';
+            $db->prepare($sql)->execute($params);
         }
         
         // Extras aktualisieren
-        $db->prepare('DELETE FROM product_extras WHERE product_id = ?')->execute([$productId]);
-        if (!empty($data['extras'])) {
-            $extStmt = $db->prepare('INSERT INTO product_extras (product_id, name, price) VALUES (?, ?, ?)');
-            foreach ($data['extras'] as $extra) {
-                $extStmt->execute([$productId, $extra['name'], $extra['price']]);
+        if (isset($data['extra_ids'])) {
+            $db->prepare('DELETE FROM product_extras WHERE product_id = ?')->execute([$productId]);
+            $extStmt = $db->prepare('INSERT INTO product_extras (product_id, extra_id) VALUES (?, ?)');
+            foreach ($data['extra_ids'] as $extraId) {
+                $extStmt->execute([$productId, $extraId]);
             }
         }
         
@@ -171,10 +189,11 @@ switch ($requestMethod) {
         requireAuth();
         if (!$productId) jsonResponse(['error' => 'Produkt-ID erforderlich'], 400);
         
+        // Soft delete
         $stmt = $db->prepare('UPDATE products SET is_active = 0 WHERE id = ?');
         $stmt->execute([$productId]);
         
-        jsonResponse(['message' => 'Produkt gelöscht']);
+        jsonResponse(['message' => 'Produkt deaktiviert']);
         break;
         
     default:
