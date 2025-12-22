@@ -6,9 +6,7 @@ import { Checkbox } from '../components/ui/checkbox';
 import { useCart } from '../context/CartContext';
 import { toast } from 'sonner';
 import { ArrowLeft, Minus, Plus, ShoppingBag, AlertTriangle } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../lib/api';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -23,10 +21,10 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`${API}/products/${id}`);
-        setProduct(response.data);
-        if (response.data.variants.length > 0) {
-          setSelectedVariant(response.data.variants[0]);
+        const productData = await api.getProduct(id);
+        setProduct(productData);
+        if (productData.variants && productData.variants.length > 0) {
+          setSelectedVariant(productData.variants[0]);
         }
       } catch (error) {
         console.error('Error fetching product:', error);
