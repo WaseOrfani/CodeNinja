@@ -1,0 +1,166 @@
+<analysis>**original_problem_statement:**
+The user initially wanted to build a modern, mobile-first e-commerce website for a food brand called ORIA FRESH using a React/FastAPI/MongoDB stack. The project evolved to include a full product catalog, admin panel, and a QR ordering system.
+
+In the latest session, the user's primary requirement shifted significantly: **the project must be converted into a fully functional, self-hostable e-commerce web application, independent of the Emergent platform.** This involves migrating the entire backend from Python/FastAPI and MongoDB to **PHP and MySQL**, while keeping the existing React frontend design and structure. The final deliverable should be the complete source code, a MySQL database schema, and deployment instructions for a standard Linux server (e.g., All-Inkl, IONOS).
+
+**User's preferred language**: Deutsch
+
+**what currently exists?**
+The application consists of a complete React frontend with a highly polished UI for a food ordering website. It features product pages, a shopping cart, a multi-step checkout, and a comprehensive admin panel.
+
+Originally, this frontend was connected to a Python/FastAPI backend with a MongoDB database. However, due to a new user requirement, a migration to a PHP/MySQL backend has begun. A new directory  has been created, containing the basic file structure and API stubs for the new PHP backend. The old Python backend is still present but is now considered deprecated.
+
+**Last working item**:
+- **Last item agent was working:** The agent was in the initial phase of a major architectural migration: replacing the Python/FastAPI/MongoDB backend with a new **PHP/MySQL backend**. The user provided a detailed and complete MySQL schema and data seeding script, and the agent was tasked with implementing this new backend structure.
+- **Status:** IN PROGRESS
+- **Agent Testing Done:** N
+- **Which testing method agent to use?** both. This is a major architectural change.
+    1.  **Backend:** Once the PHP API endpoints are built, they need to be tested individually using  to ensure they interact correctly with the MySQL database and return the expected JSON data.
+    2.  **Frontend/E2E:** After rewiring the React frontend to the new PHP API, use the  tool to verify pages load with data from the new backend. Following that, a full pass with the  is required to test all user flows (browsing, adding to cart, checkout, admin functions).
+- **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+- **Issue 1 (P0):** Complete the migration to a PHP/MySQL backend.
+
+**Issues Detail:**
+- **Issue 1: Complete the migration to a PHP/MySQL backend**
+    - **Attempted fixes:** The agent created the initial directory structure for the new backend at  and added several placeholder PHP files for the API endpoints. The user then provided a comprehensive and final MySQL schema () and a data seeding script (), which the agent acknowledged and was about to implement.
+    - **Next debug checklist:**
+        1.  **Database Setup:** Execute the user-provided  to create the complete table structure in the MySQL database.
+        2.  **Data Seeding:** Run the  script to populate the database with the final, user-approved product catalog.
+        3.  **Build PHP API:** Fully implement the logic for all PHP API endpoints in  (e.g., , , , ). These scripts must connect to the MySQL database using PDO, handle requests, and return data in the same JSON format the frontend expects.
+        4.  **Rewire Frontend:** Modify the React application to communicate with the new PHP backend. This involves updating all API call functions (e.g., in  files and ) to point to the new  endpoints.
+        5.  **Environment Configuration:** Ensure the frontend's  file () points to the location of the new PHP backend.
+    - **Why fix this issue and what will be achieved with the fix?** This is the user's top priority. Completing the migration will make the entire application self-hostable on standard web hosting (like All-Inkl or IONOS), fulfilling the core requirement of being independent of the Emergent platform.
+    - **Status:** IN PROGRESS
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** both
+    - **Blocked on other issue:** None. This is the main blocker for all future work.
+
+**In progress Task List**:
+- **Task 1: PHP/MySQL Backend Migration**
+    - **Where to resume:** The user has provided the exact MySQL schema and seed data. The next step is to execute these SQL scripts to set up the database. Concurrently, build out the PHP API endpoints () to read from and write to these new tables.
+    - **What will be achieved with this?** A fully functional backend running on PHP and MySQL, ready to be connected to the existing React frontend.
+    - **Status:** IN PROGRESS
+    - **Should Test frontend/backend/both after fix?** both
+    - **Blocked on something:** None.
+
+**Upcoming and Future Tasks**
+All previous roadmap items are on hold until the PHP/MySQL migration is complete and verified.
+- **Upcoming Tasks (P0):**
+    - Complete and test the PHP/MySQL backend.
+    - Rewire the entire React frontend to use the new PHP API.
+    - Test the full application E2E to ensure all features (shop, cart, checkout, admin panel) work as before.
+    - Create a final deployment guide () as requested by the user.
+
+**Completed work in this session**
+- **QR Bonus System:** Fully implemented the QR marketing bonus system, including backend logic, admin controls, frontend display in checkout, and dashboard statistics.
+- **Product Catalog Overhaul:** Executed multiple large-scale updates to the product catalog based on detailed user prompts, including:
+    - Standardizing product names, prices, descriptions, and variants (MENÜ – EMPFOHLEN).
+    - Adding icons (🌱, 🌶️, 👶) to products.
+    - Updating product images and correcting placeholder data.
+- **Content & Legal Updates:**
+    - Updated the Über uns (About Us) and Impressum (Imprint) pages with new text.
+    - Performed a site-wide update to correct all company contact details (address, phone, email) across all pages, footers, and backend configurations.
+    - Replaced the entire AGB (Terms & Conditions) content with a final, legally-vetted version.
+- **Feature Removal:** Completely removed all references to Halal from the frontend UI, backend models, and database seeds.
+- **UI/UX Fixes & Enhancements:**
+    - Fixed a recurring CSS bug where the cookie banner would overlap page content.
+    - Implemented a complex, rule-based upsell logic in the checkout to suggest relevant products.
+    - Restructured the entire shop navigation with new, user-defined categories in a specific order.
+- **Tech Stack Migration (Initiated):**
+    - Began the pivot from Python/MongoDB to **PHP/MySQL** by creating the new backend directory structure and API file stubs.
+
+**Earlier issues found/mentioned but not fixed**
+None. All previously identified minor issues (cookie banner, seed images) were resolved in this session.
+
+**Known issue recurrence from previous fork**
+None.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- **Current Stack (being replaced):** FastAPI (Python), MongoDB, Motor.
+- **Target Stack:** **PHP**, **MySQL**, **PDO** for database connections.
+- **Frontend (unchanged):** React, React Router, Axios, Tailwind CSS.
+
+**key DB schema**
+The user has provided a final MySQL schema. Key tables include:
+-   **categories:** 
+-   **products:** 
+-   **menu_items:**  (Defines bundle contents)
+-   **extras:**  (e.g., Extra Patty, Bacon)
+-   **product_extras:**  (Maps which extras are available for a product)
+-   **orders:** 
+-   **order_items:** 
+-   **order_item_extras:** 
+
+**changes in tech stack**
+- **Complete Backend & Database Migration:** The entire backend is being moved from **Python/FastAPI/MongoDB** to **PHP/MySQL**. This is a fundamental change to the project's architecture to meet self-hosting requirements.
+
+**All files of reference**
+- : The root directory for the new backend.
+- The user provided two critical SQL scripts (which should be created):
+    - : Contains the full MySQL database schema.
+    - : Contains all  statements to populate the database with the final product list.
+- : The entire frontend codebase needs to be reviewed and its API calls redirected to the new PHP backend.
+
+**Areas that need refactoring**:
+- The old  directory and its contents () are now deprecated and should be deleted once the new PHP backend is fully functional and tested.
+
+**key api endpoints**
+The old FastAPI endpoints are deprecated. The new endpoints are being created as individual PHP files:
+- 
+- 
+- 
+- 
+-  (to be defined)
+
+**Critical Info for New Agent**
+- **Migration is the ONLY priority.** The user has explicitly decided to abandon the Python/MongoDB stack in favor of PHP/MySQL for portability and self-hosting. Do not attempt to fix or enhance the old Python backend.
+- **Follow the User's Schema.** The user has provided a complete and detailed MySQL schema and seeding script. These are not suggestions; they are the required implementation. You must create and use these scripts to build the database.
+- **The frontend needs to be rewired.** After building the PHP API, your next critical task is to go through the React frontend and change all API calls to point to the new  endpoints. The expected JSON structure should remain the same to minimize frontend changes.
+- **The project goal is production readiness.** The user wants a deliverable that can be exported and run on a standard hosting provider like All-Inkl. Keep this end goal in mind.
+
+**documents and test_reports created in this job**
+- The user provided the content for two SQL files which must be created:  and .
+- 
+-  (Agent's version, should be replaced by user's version)
+- 
+
+**Last 10 User Messages and any pending HUMAN messages**
+10.  (User confirms choice 'A' to proceed with PHP/MySQL backend)
+9.   (User asks to rewrite in PHP language)
+8.   (User asks for the database)
+7.   (User asks for admin login)
+6.   (User answers agent's clarification questions about the migration)
+5.  User provides a massive prompt detailing the requirement to make the project production-ready and self-hostable by converting to PHP and MySQL.
+4.   (User asks how does the backend look)
+3.  User provides a detailed prompt to replace all sauce images with a consistent style.
+2.  User provides a detailed prompt to implement a specific, complex upsell logic.
+1.  User provides a massive prompt to finalize all sauces and drinks, including names, prices, categories, and vegan/non-vegan icons.
+
+**Project Health Check:**
+- **Broken:** The application is in a transitional state. The link between the frontend and a functional backend is broken. The new PHP backend is not yet complete. The old Python backend is deprecated.
+- **Mocked:**
+    - **PayPal Payments:** Prepared but inactive.
+    - **Email Service (Resend):** Prepared but inactive (logs to console).
+
+**3rd Party Integrations**
+- **PayPal:** Integration is coded but requires user-provided API keys to be functional.
+- **Resend:** Integration is coded but requires a user-provided API key. Currently mocked.
+
+**Testing status**
+- **Testing agent used after significant changes:** NO (Not since the migration started).
+- **Troubleshoot agent used after agent stuck in loop:** NO
+- **Test files created:** None.
+- **Known regressions:** The entire application is non-functional pending the backend migration.
+
+**Credentials to test flow:**
+- **Admin Login:**
+    - **Email:** 
+    - **Password:** 
+
+**What agent forgot to execute**
+The agent is in the middle of a very large, user-directed task (the PHP/MySQL migration). Nothing has been forgotten, but the task is far from complete. The agent correctly identified the user's new priority and started working on it.</analysis>
