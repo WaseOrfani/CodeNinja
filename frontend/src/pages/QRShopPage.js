@@ -5,9 +5,7 @@ import { ProductCard } from '../components/ProductCard';
 import { Badge } from '../components/ui/badge';
 import { useCart } from '../context/CartContext';
 import { Search, ShoppingBag, X } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../lib/api';
 
 export default function QRShopPage() {
   const navigate = useNavigate();
@@ -31,12 +29,12 @@ export default function QRShopPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsRes, categoriesRes] = await Promise.all([
-          axios.get(`${API}/products`),
-          axios.get(`${API}/categories`)
+        const [productsData, categoriesData] = await Promise.all([
+          api.getProducts(),
+          api.getCategories()
         ]);
-        setProducts(productsRes.data);
-        setCategories(categoriesRes.data);
+        setProducts(productsData);
+        setCategories(categoriesData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
