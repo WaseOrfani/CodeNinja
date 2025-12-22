@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { MapPin, Clock, Phone, Mail, ArrowRight } from 'lucide-react';
-import axios from 'axios';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import api from '../lib/api';
 
 export default function LocationPage() {
   const [settings, setSettings] = useState(null);
@@ -12,8 +10,8 @@ export default function LocationPage() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await axios.get(`${API}/settings`);
-        setSettings(response.data);
+        const settingsData = await api.getSettings();
+        setSettings(settingsData);
       } catch (error) {
         console.error('Error fetching settings:', error);
       }
