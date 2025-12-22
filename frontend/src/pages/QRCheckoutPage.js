@@ -49,15 +49,15 @@ export default function QRCheckoutPage() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await axios.get(`${API}/settings`);
-        setSettings(response.data);
+        const settingsData = await api.getSettings();
+        setSettings(settingsData);
         // Set first pickup slot as default
-        const slots = response.data.pickup_slots || ['sofort', '15 min', '30 min'];
+        const slots = settingsData.pickup_slots || ['sofort', '15 min', '30 min'];
         setFormData(prev => ({ ...prev, pickup_time: slots[0] }));
         
         // Check if QR bonus is enabled
-        if (response.data.qr_bonus?.enabled) {
-          setQrBonus(response.data.qr_bonus);
+        if (settingsData.qr_bonus?.enabled) {
+          setQrBonus(settingsData.qr_bonus);
         }
       } catch (error) {
         console.error('Error fetching settings:', error);
