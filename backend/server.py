@@ -599,8 +599,15 @@ async def admin_get_redemptions(
         store = await db.stores.find_one({"id": r["store_id"]})
         staff = await db.staff.find_one({"id": r["staff_id"]})
         
+        # Remove MongoDB ObjectId and build clean response
         result.append({
-            **r,
+            "id": r.get("id", str(r.get("_id", ""))),
+            "coupon_id": r.get("coupon_id"),
+            "device_hash": r.get("device_hash", "")[:16] + "...",  # Truncate for privacy
+            "store_id": r.get("store_id"),
+            "staff_id": r.get("staff_id"),
+            "redeemed_at": r.get("redeemed_at").isoformat() if r.get("redeemed_at") else None,
+            "redeem_date": r.get("redeem_date"),
             "coupon_title": coupon["title"] if coupon else "Unknown",
             "coupon_code": coupon["code"] if coupon else "Unknown",
             "store_name": store["name"] if store else "Unknown",
