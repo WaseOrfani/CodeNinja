@@ -101,3 +101,240 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Build Oria Fresh Gutscheine App - Fast-food coupon mobile app similar to McDonald's coupons with QR code redemption, staff scanning, and admin dashboard"
+
+backend:
+  - task: "Categories API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "GET /api/categories returns 7 categories (Highlights, Burger, Menüs, etc.)"
+
+  - task: "Coupons API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "GET /api/coupons returns 12 coupons with all fields including images"
+
+  - task: "Stores API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "GET /api/stores returns 2 stores (Hauptbahnhof, Alexanderplatz)"
+
+  - task: "QR Token Generation"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "POST /api/coupons/{id}/token generates JWT token with 60 sec expiry"
+
+  - task: "Staff Authentication"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Staff login works with staff1/staff123"
+
+  - task: "QR Validation"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "POST /api/redeem/validate validates tokens correctly"
+
+  - task: "Redemption Confirmation"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "POST /api/redeem/confirm records redemptions successfully"
+
+  - task: "1x Per Day Rule"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Returns ALREADY_REDEEMED_TODAY when same device tries to redeem same coupon twice in a day"
+
+  - task: "Admin Authentication"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Admin login works with admin/admin123"
+
+  - task: "Admin Redemptions View"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "GET /api/admin/redemptions returns enriched redemption data"
+
+frontend:
+  - task: "Home Screen with Coupons"
+    implemented: true
+    working: true
+    file: "frontend/app/(tabs)/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Shows ORIA FRESH branding, category tabs, coupon cards with images and prices"
+
+  - task: "Coupon Detail Screen"
+    implemented: true
+    working: true
+    file: "frontend/app/coupon/[id].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Shows full coupon details, image, price, validity, conditions"
+
+  - task: "QR Code Display"
+    implemented: true
+    working: true
+    file: "frontend/app/qr/[id].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Generates QR code with 60s countdown, auto-refresh"
+
+  - task: "Stores Screen"
+    implemented: true
+    working: true
+    file: "frontend/app/(tabs)/stores.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Shows store cards with name, address, city"
+
+  - task: "Staff Login"
+    implemented: true
+    working: true
+    file: "frontend/app/staff/login.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Login form with demo hint"
+
+  - task: "Staff QR Scanner"
+    implemented: true
+    working: true
+    file: "frontend/app/staff/scan.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Camera scanner with validation results and confirm button"
+
+  - task: "Admin Login"
+    implemented: true
+    working: true
+    file: "frontend/app/admin/login.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Admin login screen with orange accent"
+
+  - task: "Admin Dashboard"
+    implemented: true
+    working: true
+    file: "frontend/app/admin/dashboard.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Shows stats, today's redemptions, recent activity"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "All core features implemented"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "MVP complete. Backend APIs tested with curl. Frontend screens created. Key features: Categories, Coupons with images, QR generation with 60s expiry, Staff QR scanning, 1x per day rule working, Admin dashboard."
