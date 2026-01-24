@@ -3,9 +3,9 @@
 ## Projektübersicht
 
 **Projektname:** AfghanFood.de  
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Erstellungsdatum:** Januar 2026  
-**Status:** MVP Complete ✅
+**Status:** Produktionsbereit ✅
 
 ---
 
@@ -13,9 +13,10 @@
 
 Eine vollständig funktionsfähige Food- & Kultur-Plattform für afghanische Küche, ähnlich einem WordPress-System, aber als moderne React-Anwendung mit:
 - Rezepte-Management (CRUD)
-- Blog-Funktion
+- Blog-Funktion mit SEO
 - Statische Inhaltsseiten
 - Admin-Panel
+- Bildupload
 - Docker-basiertes Deployment
 
 ---
@@ -30,7 +31,7 @@ Eine vollständig funktionsfähige Food- & Kultur-Plattform für afghanische Kü
 ### 2. Administrator
 - Verwaltet Rezepte und Blog-Artikel
 - Pflegt statische Seiten
-- Benötigt einfaches Admin-Interface
+- Benötigt einfaches Admin-Interface mit Bildupload
 
 ---
 
@@ -48,8 +49,10 @@ Eine vollständig funktionsfähige Food- & Kultur-Plattform für afghanische Kü
 | Blog-Artikel-Detail | ✅ |
 | Statische Seiten (6 Stück) | ✅ |
 | Admin-Login | ✅ |
-| Admin-Dashboard | ✅ |
+| Admin-Dashboard (Tabs) | ✅ |
 | Rezept-CRUD im Admin | ✅ |
+| Blog-CRUD im Admin | ✅ |
+| Bildupload-Funktion | ✅ |
 | Navigation & Footer | ✅ |
 | Deutsche Lokalisierung | ✅ |
 
@@ -60,7 +63,8 @@ Eine vollständig funktionsfähige Food- & Kultur-Plattform für afghanische Kü
 | REST API | ✅ |
 | JWT Authentication | ✅ |
 | Rezepte CRUD | ✅ |
-| Blog CRUD | ✅ |
+| Blog CRUD mit SEO-Feldern | ✅ |
+| Bildupload API | ✅ |
 | Statische Seiten API | ✅ |
 | Kategorien-System | ✅ |
 | Sitemap-Endpunkt | ✅ |
@@ -74,6 +78,7 @@ Eine vollständig funktionsfähige Food- & Kultur-Plattform für afghanische Kü
 | Dockerfiles (Frontend/Backend) | ✅ |
 | Nginx Reverse Proxy | ✅ |
 | SSL-Ready Config | ✅ |
+| Upload-Volume | ✅ |
 | Seed-Daten | ✅ |
 | INSTALL.md Anleitung | ✅ |
 | INFO.txt Dokumentation | ✅ |
@@ -108,89 +113,50 @@ Eine vollständig funktionsfähige Food- & Kultur-Plattform für afghanische Kü
 
 ---
 
-## Datenbankschema
+## API-Endpunkte
 
-### Users
-```json
-{
-  "id": "uuid",
-  "email": "string",
-  "name": "string",
-  "role": "admin",
-  "password_hash": "string",
-  "created_at": "ISO datetime"
-}
-```
+### Öffentlich
+- `GET /api/` - API Status
+- `GET /api/health` - Health Check
+- `GET /api/recipes` - Alle Rezepte
+- `GET /api/recipes/{slug}` - Einzelnes Rezept
+- `GET /api/blog` - Alle Blog-Artikel
+- `GET /api/blog/{slug}` - Einzelner Artikel
+- `GET /api/pages/{slug}` - Statische Seite
+- `GET /api/categories` - Rezept-Kategorien
+- `GET /api/blog-categories` - Blog-Kategorien
+- `GET /api/uploads/{file}` - Hochgeladene Bilder
 
-### Recipes
-```json
-{
-  "id": "uuid",
-  "title": "string",
-  "slug": "string",
-  "description": "string",
-  "image_url": "string",
-  "category": "string",
-  "difficulty": "Einfach|Mittel|Schwer",
-  "prep_time": "string",
-  "cook_time": "string",
-  "servings": "number",
-  "ingredients": [{"name": "string", "amount": "string"}],
-  "instructions": ["string"],
-  "tips": "string",
-  "tags": ["string"],
-  "created_at": "ISO datetime",
-  "updated_at": "ISO datetime"
-}
-```
+### Authentifiziert (Admin)
+- `POST /api/auth/login` - Login
+- `GET /api/auth/me` - Benutzer-Info
+- `POST /api/upload` - Bild hochladen
+- `POST /api/recipes` - Rezept erstellen
+- `PUT /api/recipes/{id}` - Rezept aktualisieren
+- `DELETE /api/recipes/{id}` - Rezept löschen
+- `POST /api/blog` - Artikel erstellen
+- `PUT /api/blog/{id}` - Artikel aktualisieren
+- `DELETE /api/blog/{id}` - Artikel löschen
 
 ---
 
 ## Was wurde implementiert
 
-**24. Januar 2026:**
+**24. Januar 2026 - Version 1.0:**
 - [x] Vollständiges Backend mit allen API-Endpunkten
 - [x] Vollständiges Frontend mit allen Seiten
 - [x] Admin-Panel mit Rezept-CRUD
 - [x] Seed-Daten (3 Rezepte, 1 Blog-Post, 6 Seiten)
 - [x] Docker-Konfiguration
 - [x] Installationsanleitung
-- [x] 98% Testabdeckung bestanden
 
----
-
-## Backlog / Zukünftige Features
-
-### P0 (Kritisch)
-- [ ] Passwort-Ändern im Admin
-- [ ] Blog-CRUD im Admin-Panel
-
-### P1 (Wichtig)
-- [ ] Bildupload-Funktion
-- [ ] Rezept-Suche
-- [ ] Newsletter-Anmeldung
-- [ ] Kontaktformular
-
-### P2 (Nice-to-have)
-- [ ] Rezept-Bewertungen
-- [ ] Kommentare
-- [ ] Social Sharing
-- [ ] Mehrsprachigkeit (EN)
-- [ ] Dark Mode
-
----
-
-## Deployment-Anleitung
-
-Siehe `/app/INSTALL.md` für detaillierte Schritte.
-
-**Schnellstart:**
-```bash
-cp .env.example .env
-# .env anpassen
-docker compose up -d --build
-docker compose exec backend python seed_data.py
-```
+**24. Januar 2026 - Version 1.1:**
+- [x] Blog-CRUD im Admin-Dashboard (Tabs: Rezepte | Blog)
+- [x] Meta-Titel & Meta-Description pro Blog-Artikel
+- [x] Bildupload-Funktion für Rezepte & Blog
+- [x] URL-Fallback für externe Bilder
+- [x] Persistentes Upload-Volume
+- [x] Aktualisierte Dokumentation
 
 ---
 
@@ -206,10 +172,71 @@ docker compose exec backend python seed_data.py
 
 ---
 
-## Nächste Schritte
+## Backlog / Zukünftige Features (Phase 2)
 
-1. Domain konfigurieren
-2. SSL-Zertifikat einrichten
-3. Admin-Passwort ändern
-4. Weitere Rezepte hinzufügen
-5. Blog-Artikel erstellen
+### P1 (Wichtig)
+- [ ] Newsletter-Funktion (vorgemerkt)
+- [ ] Rezept-Suche
+- [ ] Kontaktformular
+
+### P2 (Nice-to-have)
+- [ ] Rezept-Bewertungen
+- [ ] Kommentare
+- [ ] Social Sharing
+- [ ] Mehrsprachigkeit (EN)
+- [ ] Dark Mode
+
+---
+
+## Deployment-Checklist
+
+```bash
+# 1. Dateien auf Server kopieren
+scp afghanfood.zip user@server:/home/user/
+
+# 2. Entpacken
+unzip afghanfood.zip && cd afghanfood
+
+# 3. Environment konfigurieren
+cp .env.example .env
+nano .env  # JWT_SECRET, BACKEND_URL, CORS_ORIGINS anpassen
+
+# 4. Starten
+docker compose up -d --build
+
+# 5. Seed-Daten laden
+docker compose exec backend python seed_data.py
+
+# 6. Testen
+curl http://localhost/api/health
+```
+
+---
+
+## Dateien für Export
+
+```
+afghanfood/
+├── backend/
+│   ├── server.py
+│   ├── seed_data.py
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── .env
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── nginx.conf
+│   ├── Dockerfile
+│   └── .env
+├── nginx/
+│   └── nginx.conf
+├── seed/
+│   ├── seed.sh
+│   └── seed_data.js
+├── docker-compose.yml
+├── .env.example
+├── INSTALL.md
+└── INFO.txt
+```
