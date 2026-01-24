@@ -1,5 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, Form
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -12,10 +13,14 @@ import uuid
 from datetime import datetime, timezone
 import jwt
 import bcrypt
-import base64
+import shutil
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Upload directory
+UPLOAD_DIR = ROOT_DIR / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -26,7 +31,7 @@ db = client[os.environ['DB_NAME']]
 SECRET_KEY = os.environ.get('JWT_SECRET', 'afghanfood-secret-key-2024')
 ALGORITHM = "HS256"
 
-app = FastAPI(title="AfghanFood.de API", version="1.0.0")
+app = FastAPI(title="AfghanFood.de API", version="1.1.0")
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
@@ -94,6 +99,8 @@ class BlogPostCreate(BaseModel):
     content: str
     image_url: str
     category: str
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
     tags: List[str] = []
 
 class BlogPost(BaseModel):
@@ -105,6 +112,8 @@ class BlogPost(BaseModel):
     content: str
     image_url: str
     category: str
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
     tags: List[str] = []
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
@@ -182,6 +191,54 @@ async def login(credentials: UserLogin):
 async def get_me(current_user: dict = Depends(get_current_user)):
     return {k: v for k, v in current_user.items() if k != "password_hash"}
 
+# ============== UPLOAD ROUTES ==============
+
+ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+@api_router.post("/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    # Validate file extension
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Dateityp nicht erlaubt. Erlaubt: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+    
+    # Read file content
+    content = await file.read()
+    
+    # Validate file size
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="Datei zu groß. Maximum: 5MB")
+    
+    # Generate unique filename
+    unique_filename = f"{uuid.uuid4()}{file_ext}"
+    file_path = UPLOAD_DIR / unique_filename
+    
+    # Save file
+    with open(file_path, "wb") as f:
+        f.write(content)
+    
+    # Return the URL path
+    return {
+        "filename": unique_filename,
+        "url": f"/api/uploads/{unique_filename}",
+        "size": len(content)
+    }
+
+@api_router.get("/uploads/{filename}")
+async def get_upload(filename: str):
+    from fastapi.responses import FileResponse
+    file_path = UPLOAD_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Datei nicht gefunden")
+    return FileResponse(file_path)
+
 # ============== RECIPE ROUTES ==============
 
 @api_router.get("/recipes", response_model=List[Recipe])
@@ -199,7 +256,7 @@ async def get_recipe(slug: str):
         raise HTTPException(status_code=404, detail="Rezept nicht gefunden")
     return recipe
 
-@api_router.post("/recipes", response_model=Recipe)
+@api_router.post("/recipes", response_model=Recipe, status_code=201)
 async def create_recipe(recipe_data: RecipeCreate, current_user: dict = Depends(get_current_user)):
     existing = await db.recipes.find_one({"slug": recipe_data.slug})
     if existing:
@@ -243,9 +300,20 @@ async def get_blog_post(slug: str):
         raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
     return post
 
-@api_router.post("/blog", response_model=BlogPost)
+@api_router.post("/blog", response_model=BlogPost, status_code=201)
 async def create_blog_post(post_data: BlogPostCreate, current_user: dict = Depends(get_current_user)):
-    post = BlogPost(**post_data.model_dump())
+    existing = await db.blog_posts.find_one({"slug": post_data.slug})
+    if existing:
+        raise HTTPException(status_code=400, detail="Slug bereits vergeben")
+    
+    # Auto-generate meta fields if not provided
+    data = post_data.model_dump()
+    if not data.get("meta_title"):
+        data["meta_title"] = f"{data['title']} | AfghanFood.de"
+    if not data.get("meta_description"):
+        data["meta_description"] = data["excerpt"][:160] if len(data["excerpt"]) > 160 else data["excerpt"]
+    
+    post = BlogPost(**data)
     await db.blog_posts.insert_one(post.model_dump())
     return post
 
@@ -257,6 +325,12 @@ async def update_blog_post(post_id: str, post_data: BlogPostCreate, current_user
     
     update_data = post_data.model_dump()
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Auto-generate meta fields if not provided
+    if not update_data.get("meta_title"):
+        update_data["meta_title"] = f"{update_data['title']} | AfghanFood.de"
+    if not update_data.get("meta_description"):
+        update_data["meta_description"] = update_data["excerpt"][:160]
     
     await db.blog_posts.update_one({"id": post_id}, {"$set": update_data})
     updated = await db.blog_posts.find_one({"id": post_id}, {"_id": 0})
@@ -303,6 +377,17 @@ async def get_categories():
     ]
     return categories
 
+@api_router.get("/blog-categories")
+async def get_blog_categories():
+    categories = [
+        {"id": "kultur", "name": "Kultur", "description": "Afghanische Kultur und Traditionen"},
+        {"id": "rezept-tipps", "name": "Rezept-Tipps", "description": "Kochtipps und Anleitungen"},
+        {"id": "zutaten", "name": "Zutaten", "description": "Warenkunde und Zutatenwissen"},
+        {"id": "feste", "name": "Feste", "description": "Traditionelle Feste und Feiern"},
+        {"id": "reisen", "name": "Reisen", "description": "Kulinarische Reisen"}
+    ]
+    return categories
+
 # ============== SITEMAP ==============
 
 @api_router.get("/sitemap")
@@ -324,7 +409,7 @@ async def get_sitemap():
 
 @api_router.get("/")
 async def root():
-    return {"message": "AfghanFood.de API", "version": "1.0.0", "status": "running"}
+    return {"message": "AfghanFood.de API", "version": "1.1.0", "status": "running"}
 
 @api_router.get("/health")
 async def health():
