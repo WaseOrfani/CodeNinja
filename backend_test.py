@@ -189,6 +189,38 @@ class AfghanFoodAPITester:
         # Test get non-existent blog post
         self.run_test("Get Non-existent Blog Post", "GET", "blog/non-existent-post", 404)
 
+    def test_blog_categories_endpoint(self):
+        """Test blog categories endpoint"""
+        print("\n" + "="*50)
+        print("TESTING BLOG CATEGORIES ENDPOINT")
+        print("="*50)
+        
+        success, categories = self.run_test("Get Blog Categories", "GET", "blog-categories", 200)
+        
+        if success and isinstance(categories, list):
+            print(f"   📊 Found {len(categories)} blog categories")
+            expected_categories = ["kultur", "rezept-tipps", "zutaten", "feste", "reisen"]
+            found_categories = [c.get('id', '') for c in categories if isinstance(c, dict)]
+            
+            for expected in expected_categories:
+                if expected in found_categories:
+                    print(f"   ✅ Found expected blog category: {expected}")
+                else:
+                    print(f"   ⚠️  Missing expected blog category: {expected}")
+
+    def test_upload_endpoint(self):
+        """Test file upload endpoint (requires authentication)"""
+        if not self.token:
+            print("\n⚠️  Skipping upload tests - no authentication token")
+            return
+            
+        print("\n" + "="*50)
+        print("TESTING UPLOAD ENDPOINT")
+        print("="*50)
+        
+        # Test upload endpoint without file (should fail)
+        self.run_test("Upload Without File", "POST", "upload", 422, auth_required=True)
+
     def test_page_endpoints(self):
         """Test static page endpoints"""
         print("\n" + "="*50)
