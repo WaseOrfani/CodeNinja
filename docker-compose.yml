@@ -1,5 +1,5 @@
 # AfghanFood.de - Docker Compose Konfiguration
-# Vollständige Self-Hosting Lösung
+# Vollständige Self-Hosting Lösung mit Bildupload
 
 version: '3.8'
 
@@ -11,7 +11,6 @@ services:
     restart: unless-stopped
     volumes:
       - mongodb_data:/data/db
-      - ./seed:/docker-entrypoint-initdb.d:ro
     environment:
       - MONGO_INITDB_DATABASE=afghanfood
     networks:
@@ -34,6 +33,8 @@ services:
       - DB_NAME=afghanfood
       - JWT_SECRET=${JWT_SECRET:-afghanfood-secret-key-production-2024}
       - CORS_ORIGINS=${CORS_ORIGINS:-*}
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       mongodb:
         condition: service_healthy
@@ -83,3 +84,4 @@ networks:
 
 volumes:
   mongodb_data:
+  uploads_data:

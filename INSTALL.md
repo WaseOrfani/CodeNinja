@@ -52,7 +52,7 @@ nano .env
 # Sicheres JWT Secret generieren
 JWT_SECRET=$(openssl rand -base64 32)
 
-# Ihre Domain (ohne https://)
+# Ihre Domain (mit https:// für Produktion)
 BACKEND_URL=https://ihre-domain.de
 
 # Erlaubte Origins
@@ -130,6 +130,28 @@ crontab -e
 
 ---
 
+## 📤 Bildupload-Funktion
+
+Die Anwendung unterstützt Bildupload für Rezepte und Blog-Artikel.
+
+### Konfiguration
+
+- **Upload-Verzeichnis**: Die Bilder werden im Docker-Volume `uploads_data` gespeichert
+- **Erlaubte Dateitypen**: JPG, JPEG, PNG, GIF, WebP
+- **Maximale Dateigröße**: 5 MB
+
+### Backup der Uploads
+
+```bash
+# Backup erstellen
+docker run --rm -v afghanfood_uploads_data:/data -v $(pwd):/backup alpine tar cvf /backup/uploads_backup.tar /data
+
+# Backup wiederherstellen
+docker run --rm -v afghanfood_uploads_data:/data -v $(pwd):/backup alpine tar xvf /backup/uploads_backup.tar -C /
+```
+
+---
+
 ## 🌐 Domain-Konfiguration
 
 ### DNS-Einstellungen
@@ -152,6 +174,7 @@ afghanfood/
 │   ├── server.py         # Haupt-API
 │   ├── seed_data.py      # Seed-Skript
 │   ├── requirements.txt  # Python Dependencies
+│   ├── uploads/          # Hochgeladene Bilder (Volume)
 │   └── Dockerfile
 ├── frontend/              # React Frontend
 │   ├── src/              # React Source Code
@@ -189,7 +212,7 @@ docker compose restart [service]
 # Stoppen
 docker compose down
 
-# Mit Volumes löschen (ACHTUNG: Löscht Datenbank!)
+# Mit Volumes löschen (ACHTUNG: Löscht Datenbank + Uploads!)
 docker compose down -v
 ```
 
@@ -201,6 +224,28 @@ docker compose exec mongodb mongodump --out /data/backup
 
 # Backup kopieren
 docker cp afghanfood-mongodb:/data/backup ./backup-$(date +%Y%m%d)
+
+# Backup wiederherstellen
+docker cp ./backup-DATUM afghanfood-mongodb:/data/backup
+docker compose exec mongodb mongorestore /data/backup
+```
+
+### Komplettes Backup (DB + Uploads)
+
+```bash
+#!/bin/bash
+# backup.sh - Speichern Sie dieses Skript
+
+BACKUP_DIR="./backups/$(date +%Y%m%d_%H%M%S)"
+mkdir -p $BACKUP_DIR
+
+# MongoDB Backup
+docker compose exec -T mongodb mongodump --archive > $BACKUP_DIR/mongodb.archive
+
+# Uploads Backup
+docker run --rm -v afghanfood_uploads_data:/data -v $(pwd)/$BACKUP_DIR:/backup alpine tar cvf /backup/uploads.tar /data
+
+echo "Backup erstellt in: $BACKUP_DIR"
 ```
 
 ### Updates einspielen
@@ -241,13 +286,22 @@ docker compose exec mongodb mongosh --eval "db.adminCommand('ping')"
 # BACKEND_URL muss von außen erreichbar sein
 ```
 
+### Bildupload funktioniert nicht
+
+```bash
+# Prüfen ob Volume existiert
+docker volume ls | grep uploads
+
+# Berechtigungen im Container prüfen
+docker compose exec backend ls -la /app/uploads
+```
+
 ---
 
 ## 📞 Support
 
 Bei Fragen oder Problemen:
 - E-Mail: info@afghanfood.de
-- GitHub Issues: [Repository-URL]
 
 ---
 
