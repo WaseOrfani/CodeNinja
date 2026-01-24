@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import "@/index.css";
 import { BrowserRouter, Routes, Route, Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -6,7 +6,8 @@ import {
   Menu, X, ChefHat, Clock, Users, Search, ArrowRight, 
   Instagram, Facebook, Youtube, Mail, Phone, MapPin,
   Home as HomeIcon, BookOpen, Utensils, Leaf, CookingPot, FileText,
-  User, LogOut, Plus, Edit, Trash2, Save, ArrowLeft
+  User, LogOut, Plus, Edit, Trash2, Save, ArrowLeft, Upload, Image as ImageIcon,
+  Loader2
 } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -74,9 +75,102 @@ const api = {
   delete: (url, token) => axios.delete(`${API}${url}`, { 
     headers: { Authorization: `Bearer ${token}` } 
   }),
+  upload: (file, token) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post(`${API}/upload`, formData, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  }
 };
 
 // ============== COMPONENTS ==============
+
+// Image Upload Component
+const ImageUpload = ({ value, onChange, token }) => {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Nur JPG, PNG, GIF oder WebP erlaubt');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Datei zu groß. Maximum: 5MB');
+      return;
+    }
+
+    setError(null);
+    setUploading(true);
+
+    try {
+      const res = await api.upload(file, token);
+      // Use the full backend URL for the uploaded image
+      onChange(`${BACKEND_URL}${res.data.url}`);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Upload fehlgeschlagen');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-3">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Bild-URL eingeben oder Datei hochladen"
+          className="flex-grow px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none"
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="px-4 py-3 bg-pine text-white rounded-lg hover:bg-pine-light transition-colors flex items-center gap-2 disabled:opacity-50"
+        >
+          {uploading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Upload className="w-5 h-5" />
+          )}
+          {uploading ? 'Lädt...' : 'Hochladen'}
+        </button>
+      </div>
+      {error && <p className="text-pomegranate text-sm">{error}</p>}
+      {value && (
+        <div className="relative w-full h-48 rounded-lg overflow-hidden bg-creme">
+          <img 
+            src={value} 
+            alt="Vorschau" 
+            className="w-full h-full object-cover"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Navigation
 const Navbar = () => {
@@ -1068,24 +1162,35 @@ const LoginPage = () => {
 const AdminDashboard = () => {
   const { user, token } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("recipes");
   const [recipes, setRecipes] = useState([]);
+  const [blogPosts, setBlogPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingRecipe, setEditingRecipe] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [editingBlogPost, setEditingBlogPost] = useState(null);
+  const [showRecipeForm, setShowRecipeForm] = useState(false);
+  const [showBlogForm, setShowBlogForm] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
       return;
     }
-    loadRecipes();
+    loadData();
   }, [user, navigate]);
 
-  const loadRecipes = () => {
-    api.get("/recipes").then(res => setRecipes(res.data)).catch(console.error).finally(() => setLoading(false));
+  const loadData = () => {
+    setLoading(true);
+    Promise.all([
+      api.get("/recipes"),
+      api.get("/blog")
+    ]).then(([recipesRes, blogRes]) => {
+      setRecipes(recipesRes.data);
+      setBlogPosts(blogRes.data);
+    }).catch(console.error).finally(() => setLoading(false));
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteRecipe = async (id) => {
     if (!window.confirm("Möchten Sie dieses Rezept wirklich löschen?")) return;
     try {
       await api.delete(`/recipes/${id}`, token);
@@ -1095,26 +1200,61 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleEdit = (recipe) => {
+  const handleDeleteBlogPost = async (id) => {
+    if (!window.confirm("Möchten Sie diesen Artikel wirklich löschen?")) return;
+    try {
+      await api.delete(`/blog/${id}`, token);
+      setBlogPosts(blogPosts.filter(p => p.id !== id));
+    } catch (err) {
+      alert("Fehler beim Löschen");
+    }
+  };
+
+  const handleEditRecipe = (recipe) => {
     setEditingRecipe(recipe);
-    setShowForm(true);
+    setShowRecipeForm(true);
   };
 
-  const handleNew = () => {
+  const handleEditBlogPost = (post) => {
+    setEditingBlogPost(post);
+    setShowBlogForm(true);
+  };
+
+  const handleNewRecipe = () => {
     setEditingRecipe(null);
-    setShowForm(true);
+    setShowRecipeForm(true);
   };
 
-  const handleSave = async (recipeData) => {
+  const handleNewBlogPost = () => {
+    setEditingBlogPost(null);
+    setShowBlogForm(true);
+  };
+
+  const handleSaveRecipe = async (recipeData) => {
     try {
       if (editingRecipe) {
         await api.put(`/recipes/${editingRecipe.id}`, recipeData, token);
       } else {
         await api.post("/recipes", recipeData, token);
       }
-      setShowForm(false);
+      setShowRecipeForm(false);
       setEditingRecipe(null);
-      loadRecipes();
+      loadData();
+    } catch (err) {
+      alert(err.response?.data?.detail || "Fehler beim Speichern");
+    }
+  };
+
+  const handleSaveBlogPost = async (postData) => {
+    try {
+      if (editingBlogPost) {
+        await api.put(`/blog/${editingBlogPost.id}`, postData, token);
+      } else {
+        await api.post("/blog", postData, token);
+      }
+      setShowBlogForm(false);
+      setEditingBlogPost(null);
+      loadData();
     } catch (err) {
       alert(err.response?.data?.detail || "Fehler beim Speichern");
     }
@@ -1129,85 +1269,198 @@ const AdminDashboard = () => {
           <h1 className="font-serif text-3xl text-pine">Admin-Bereich</h1>
           <p className="text-pine/60">Willkommen, {user.name}</p>
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-4 mb-8 border-b border-creme">
         <button
-          data-testid="new-recipe-btn"
-          onClick={handleNew}
-          className="btn-primary flex items-center gap-2"
+          onClick={() => setActiveTab("recipes")}
+          className={`pb-4 px-2 font-medium transition-colors ${
+            activeTab === "recipes" 
+              ? "text-saffron border-b-2 border-saffron" 
+              : "text-pine/60 hover:text-pine"
+          }`}
         >
-          <Plus className="w-5 h-5" />
-          Neues Rezept
+          <Utensils className="w-5 h-5 inline mr-2" />
+          Rezepte ({recipes.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("blog")}
+          className={`pb-4 px-2 font-medium transition-colors ${
+            activeTab === "blog" 
+              ? "text-saffron border-b-2 border-saffron" 
+              : "text-pine/60 hover:text-pine"
+          }`}
+        >
+          <FileText className="w-5 h-5 inline mr-2" />
+          Blog ({blogPosts.length})
         </button>
       </div>
 
-      {showForm ? (
-        <RecipeForm 
-          recipe={editingRecipe} 
-          onSave={handleSave} 
-          onCancel={() => { setShowForm(false); setEditingRecipe(null); }} 
-        />
-      ) : (
-        <div className="bg-white rounded-2xl shadow-card overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-creme">
-              <tr>
-                <th className="text-left p-4 font-medium text-pine">Rezept</th>
-                <th className="text-left p-4 font-medium text-pine hidden md:table-cell">Kategorie</th>
-                <th className="text-left p-4 font-medium text-pine hidden md:table-cell">Schwierigkeit</th>
-                <th className="text-right p-4 font-medium text-pine">Aktionen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan="4" className="p-8 text-center text-pine/60">Laden...</td></tr>
-              ) : recipes.length === 0 ? (
-                <tr><td colSpan="4" className="p-8 text-center text-pine/60">Keine Rezepte vorhanden</td></tr>
-              ) : recipes.map(recipe => (
-                <tr key={recipe.id} className="border-t border-creme hover:bg-creme/30">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <img src={recipe.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
-                      <span className="font-medium text-pine">{recipe.title}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-pine/70 hidden md:table-cell">{recipe.category}</td>
-                  <td className="p-4 hidden md:table-cell">
-                    <span className={`badge ${
-                      recipe.difficulty === "Einfach" ? "difficulty-easy" :
-                      recipe.difficulty === "Mittel" ? "difficulty-medium" : "difficulty-hard"
-                    }`}>
-                      {recipe.difficulty}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        data-testid={`edit-recipe-${recipe.id}`}
-                        onClick={() => handleEdit(recipe)}
-                        className="p-2 text-pine hover:text-saffron transition-colors"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </button>
-                      <button
-                        data-testid={`delete-recipe-${recipe.id}`}
-                        onClick={() => handleDelete(recipe.id)}
-                        className="p-2 text-pine hover:text-pomegranate transition-colors"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Recipes Tab */}
+      {activeTab === "recipes" && (
+        <>
+          <div className="flex justify-end mb-6">
+            <button
+              data-testid="new-recipe-btn"
+              onClick={handleNewRecipe}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Neues Rezept
+            </button>
+          </div>
+
+          {showRecipeForm ? (
+            <RecipeForm 
+              recipe={editingRecipe} 
+              onSave={handleSaveRecipe} 
+              onCancel={() => { setShowRecipeForm(false); setEditingRecipe(null); }}
+              token={token}
+            />
+          ) : (
+            <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-creme">
+                  <tr>
+                    <th className="text-left p-4 font-medium text-pine">Rezept</th>
+                    <th className="text-left p-4 font-medium text-pine hidden md:table-cell">Kategorie</th>
+                    <th className="text-left p-4 font-medium text-pine hidden md:table-cell">Schwierigkeit</th>
+                    <th className="text-right p-4 font-medium text-pine">Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan="4" className="p-8 text-center text-pine/60">Laden...</td></tr>
+                  ) : recipes.length === 0 ? (
+                    <tr><td colSpan="4" className="p-8 text-center text-pine/60">Keine Rezepte vorhanden</td></tr>
+                  ) : recipes.map(recipe => (
+                    <tr key={recipe.id} className="border-t border-creme hover:bg-creme/30">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img src={recipe.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                          <span className="font-medium text-pine">{recipe.title}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-pine/70 hidden md:table-cell">{recipe.category}</td>
+                      <td className="p-4 hidden md:table-cell">
+                        <span className={`badge ${
+                          recipe.difficulty === "Einfach" ? "difficulty-easy" :
+                          recipe.difficulty === "Mittel" ? "difficulty-medium" : "difficulty-hard"
+                        }`}>
+                          {recipe.difficulty}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            data-testid={`edit-recipe-${recipe.id}`}
+                            onClick={() => handleEditRecipe(recipe)}
+                            className="p-2 text-pine hover:text-saffron transition-colors"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button
+                            data-testid={`delete-recipe-${recipe.id}`}
+                            onClick={() => handleDeleteRecipe(recipe.id)}
+                            className="p-2 text-pine hover:text-pomegranate transition-colors"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Blog Tab */}
+      {activeTab === "blog" && (
+        <>
+          <div className="flex justify-end mb-6">
+            <button
+              data-testid="new-blog-btn"
+              onClick={handleNewBlogPost}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Neuer Artikel
+            </button>
+          </div>
+
+          {showBlogForm ? (
+            <BlogPostForm 
+              post={editingBlogPost} 
+              onSave={handleSaveBlogPost} 
+              onCancel={() => { setShowBlogForm(false); setEditingBlogPost(null); }}
+              token={token}
+            />
+          ) : (
+            <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-creme">
+                  <tr>
+                    <th className="text-left p-4 font-medium text-pine">Artikel</th>
+                    <th className="text-left p-4 font-medium text-pine hidden md:table-cell">Kategorie</th>
+                    <th className="text-left p-4 font-medium text-pine hidden lg:table-cell">Meta-Titel</th>
+                    <th className="text-right p-4 font-medium text-pine">Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan="4" className="p-8 text-center text-pine/60">Laden...</td></tr>
+                  ) : blogPosts.length === 0 ? (
+                    <tr><td colSpan="4" className="p-8 text-center text-pine/60">Keine Artikel vorhanden</td></tr>
+                  ) : blogPosts.map(post => (
+                    <tr key={post.id} className="border-t border-creme hover:bg-creme/30">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img src={post.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                          <span className="font-medium text-pine">{post.title}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 hidden md:table-cell">
+                        <span className="badge badge-saffron">{post.category}</span>
+                      </td>
+                      <td className="p-4 text-pine/60 text-sm hidden lg:table-cell truncate max-w-xs">
+                        {post.meta_title || '-'}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            data-testid={`edit-blog-${post.id}`}
+                            onClick={() => handleEditBlogPost(post)}
+                            className="p-2 text-pine hover:text-saffron transition-colors"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button
+                            data-testid={`delete-blog-${post.id}`}
+                            onClick={() => handleDeleteBlogPost(post.id)}
+                            className="p-2 text-pine hover:text-pomegranate transition-colors"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 };
 
 // Recipe Form Component
-const RecipeForm = ({ recipe, onSave, onCancel }) => {
+const RecipeForm = ({ recipe, onSave, onCancel, token }) => {
   const [formData, setFormData] = useState({
     title: recipe?.title || "",
     slug: recipe?.slug || "",
@@ -1310,14 +1563,11 @@ const RecipeForm = ({ recipe, onSave, onCancel }) => {
       </div>
 
       <div className="mt-4">
-        <label className="block text-pine font-medium mb-2">Bild-URL *</label>
-        <input
-          type="url"
-          data-testid="recipe-image-input"
-          value={formData.image_url}
-          onChange={(e) => handleChange("image_url", e.target.value)}
-          className="w-full px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none"
-          required
+        <label className="block text-pine font-medium mb-2">Bild *</label>
+        <ImageUpload 
+          value={formData.image_url} 
+          onChange={(url) => handleChange("image_url", url)}
+          token={token}
         />
       </div>
 
@@ -1453,6 +1703,201 @@ const RecipeForm = ({ recipe, onSave, onCancel }) => {
           Abbrechen
         </button>
         <button type="submit" data-testid="save-recipe-btn" className="btn-primary flex items-center gap-2">
+          <Save className="w-5 h-5" />
+          Speichern
+        </button>
+      </div>
+    </form>
+  );
+};
+
+// Blog Post Form Component
+const BlogPostForm = ({ post, onSave, onCancel, token }) => {
+  const [formData, setFormData] = useState({
+    title: post?.title || "",
+    slug: post?.slug || "",
+    excerpt: post?.excerpt || "",
+    content: post?.content || "",
+    image_url: post?.image_url || "",
+    category: post?.category || "Kultur",
+    meta_title: post?.meta_title || "",
+    meta_description: post?.meta_description || "",
+    tags: post?.tags || []
+  });
+  const [tagInput, setTagInput] = useState("");
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const addTag = () => {
+    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+      handleChange("tags", [...formData.tags, tagInput.trim()]);
+      setTagInput("");
+    }
+  };
+
+  const removeTag = (tag) => {
+    handleChange("tags", formData.tags.filter(t => t !== tag));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <form data-testid="blog-form" onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-card">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-serif text-2xl text-pine">
+          {post ? "Artikel bearbeiten" : "Neuer Artikel"}
+        </h2>
+        <button type="button" onClick={onCancel} className="text-pine hover:text-pomegranate">
+          <X className="w-6 h-6" />
+        </button>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-pine font-medium mb-2">Titel *</label>
+          <input
+            type="text"
+            data-testid="blog-title-input"
+            value={formData.title}
+            onChange={(e) => handleChange("title", e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-pine font-medium mb-2">Slug (URL) *</label>
+          <input
+            type="text"
+            data-testid="blog-slug-input"
+            value={formData.slug}
+            onChange={(e) => handleChange("slug", e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none"
+            placeholder="artikel-name"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-pine font-medium mb-2">Kurzbeschreibung (Excerpt) *</label>
+        <textarea
+          data-testid="blog-excerpt-input"
+          value={formData.excerpt}
+          onChange={(e) => handleChange("excerpt", e.target.value)}
+          className="w-full px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none h-20"
+          placeholder="Kurze Zusammenfassung des Artikels..."
+          required
+        />
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-pine font-medium mb-2">Bild *</label>
+        <ImageUpload 
+          value={formData.image_url} 
+          onChange={(url) => handleChange("image_url", url)}
+          token={token}
+        />
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-pine font-medium mb-2">Kategorie</label>
+        <select
+          data-testid="blog-category-select"
+          value={formData.category}
+          onChange={(e) => handleChange("category", e.target.value)}
+          className="w-full px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none"
+        >
+          <option value="Kultur">Kultur</option>
+          <option value="Rezept-Tipps">Rezept-Tipps</option>
+          <option value="Zutaten">Zutaten</option>
+          <option value="Feste">Feste</option>
+          <option value="Reisen">Reisen</option>
+        </select>
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-pine font-medium mb-2">Inhalt *</label>
+        <textarea
+          data-testid="blog-content-input"
+          value={formData.content}
+          onChange={(e) => handleChange("content", e.target.value)}
+          className="w-full px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none h-64 font-mono text-sm"
+          placeholder="# Überschrift&#10;&#10;Ihr Artikel-Inhalt hier...&#10;&#10;## Unterüberschrift&#10;&#10;- Aufzählung&#10;- Punkt 2&#10;&#10;**Fettgedruckt** und *kursiv*"
+          required
+        />
+        <p className="text-sm text-pine/50 mt-1">Markdown wird unterstützt: # Überschrift, ## Unterüberschrift, **fett**, *kursiv*, - Liste</p>
+      </div>
+
+      {/* SEO Section */}
+      <div className="mt-8 pt-6 border-t border-creme">
+        <h3 className="font-serif text-xl text-pine mb-4">SEO-Einstellungen</h3>
+        
+        <div className="mt-4">
+          <label className="block text-pine font-medium mb-2">Meta-Titel</label>
+          <input
+            type="text"
+            data-testid="blog-meta-title-input"
+            value={formData.meta_title}
+            onChange={(e) => handleChange("meta_title", e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none"
+            placeholder="Wird automatisch generiert wenn leer"
+          />
+          <p className="text-sm text-pine/50 mt-1">Empfohlen: 50-60 Zeichen</p>
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-pine font-medium mb-2">Meta-Beschreibung</label>
+          <textarea
+            data-testid="blog-meta-description-input"
+            value={formData.meta_description}
+            onChange={(e) => handleChange("meta_description", e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-creme focus:border-saffron outline-none h-20"
+            placeholder="Wird automatisch aus dem Excerpt generiert wenn leer"
+          />
+          <p className="text-sm text-pine/50 mt-1">Empfohlen: 150-160 Zeichen</p>
+        </div>
+      </div>
+
+      {/* Tags */}
+      <div className="mt-6">
+        <label className="block text-pine font-medium mb-2">Tags</label>
+        <div className="flex gap-2 mb-2">
+          <input
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+            placeholder="Tag eingeben..."
+            className="flex-grow px-4 py-2 rounded-lg border border-creme focus:border-saffron outline-none"
+          />
+          <button type="button" onClick={addTag} className="px-4 py-2 bg-pine text-white rounded-lg hover:bg-pine-light">
+            <Plus className="w-5 h-5" />
+          </button>
+        </div>
+        {formData.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {formData.tags.map(tag => (
+              <span key={tag} className="badge badge-pine flex items-center gap-1">
+                #{tag}
+                <button type="button" onClick={() => removeTag(tag)} className="hover:text-pomegranate">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-creme">
+        <button type="button" onClick={onCancel} className="btn-secondary">
+          Abbrechen
+        </button>
+        <button type="submit" data-testid="save-blog-btn" className="btn-primary flex items-center gap-2">
           <Save className="w-5 h-5" />
           Speichern
         </button>
