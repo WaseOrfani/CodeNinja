@@ -1,0 +1,127 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                     AfghanFood.de                                 ║
+║              Food- & Kultur-Plattform                            ║
+╚══════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════
+                         SYSTEM-INFO
+═══════════════════════════════════════════════════════════════════
+
+Anwendung:        AfghanFood.de
+Version:          1.0.0
+Erstellungsdatum: Januar 2026
+Sprache:          Deutsch
+
+═══════════════════════════════════════════════════════════════════
+                      TECHNOLOGIE-STACK
+═══════════════════════════════════════════════════════════════════
+
+Frontend:         React 19 + TailwindCSS 3.4
+Backend:          FastAPI (Python 3.11)
+Datenbank:        MongoDB 7
+Webserver:        Nginx Alpine
+Container:        Docker + Docker Compose
+
+═══════════════════════════════════════════════════════════════════
+                      ADMIN-ZUGANGSDATEN
+═══════════════════════════════════════════════════════════════════
+
+URL:              /login
+E-Mail:           admin@afghanfood.de
+Passwort:         Admin123!
+
+⚠️  WICHTIG: Ändern Sie das Passwort nach dem ersten Login!
+
+═══════════════════════════════════════════════════════════════════
+                     EMPFOHLENE ANFORDERUNGEN
+═══════════════════════════════════════════════════════════════════
+
+Server:
+  - Ubuntu 20.04+ oder Debian 11+
+  - Docker 20.10+
+  - Docker Compose 2.0+
+  - 2 GB RAM (4 GB empfohlen)
+  - 5 GB Speicherplatz
+
+PHP-Version:      Nicht erforderlich (kein PHP!)
+Node.js:          18+ (nur für Entwicklung)
+Python:           3.11+ (nur für Entwicklung)
+
+═══════════════════════════════════════════════════════════════════
+                         PORTS
+═══════════════════════════════════════════════════════════════════
+
+HTTP:             80
+HTTPS:            443
+Backend (intern): 8001
+MongoDB (intern): 27017
+
+═══════════════════════════════════════════════════════════════════
+                   UMGEBUNGSVARIABLEN
+═══════════════════════════════════════════════════════════════════
+
+Backend (.env):
+  MONGO_URL         = mongodb://mongodb:27017
+  DB_NAME           = afghanfood
+  JWT_SECRET        = [Ihr sicheres Secret]
+  CORS_ORIGINS      = [Ihre Domain(s)]
+
+Frontend (build args):
+  REACT_APP_BACKEND_URL = [Ihre Backend-URL]
+
+═══════════════════════════════════════════════════════════════════
+                      SCHNELLSTART
+═══════════════════════════════════════════════════════════════════
+
+1. Dateien auf Server kopieren
+2. cp .env.example .env
+3. .env anpassen (JWT_SECRET, BACKEND_URL, CORS_ORIGINS)
+4. docker compose up -d --build
+5. docker compose exec backend python seed_data.py
+6. Im Browser öffnen: http://ihre-server-ip
+
+Detaillierte Anleitung: siehe INSTALL.md
+
+═══════════════════════════════════════════════════════════════════
+                        API-ENDPUNKTE
+═══════════════════════════════════════════════════════════════════
+
+GET  /api/              - API Status
+GET  /api/health        - Health Check
+GET  /api/recipes       - Alle Rezepte
+GET  /api/recipes/{slug}- Einzelnes Rezept
+POST /api/recipes       - Rezept erstellen (Auth)
+PUT  /api/recipes/{id}  - Rezept aktualisieren (Auth)
+DEL  /api/recipes/{id}  - Rezept löschen (Auth)
+GET  /api/blog          - Alle Blog-Artikel
+GET  /api/blog/{slug}   - Einzelner Artikel
+GET  /api/pages/{slug}  - Statische Seite
+GET  /api/categories    - Kategorien
+POST /api/auth/login    - Login
+GET  /api/auth/me       - Benutzer-Info (Auth)
+
+═══════════════════════════════════════════════════════════════════
+                       SEITEN-STRUKTUR
+═══════════════════════════════════════════════════════════════════
+
+/                       - Startseite
+/rezepte                - Rezepte-Übersicht
+/rezepte/{slug}         - Rezept-Detail
+/blog                   - Blog-Übersicht
+/blog/{slug}            - Blog-Artikel
+/afghanische-esskultur  - Esskultur-Seite
+/zutaten-gewuerze       - Zutaten & Gewürze
+/kuechenhelfer          - Küchenhelfer
+/ueber-uns              - Über uns
+/impressum              - Impressum
+/datenschutz            - Datenschutz
+/login                  - Admin-Login
+/admin                  - Admin-Dashboard
+
+═══════════════════════════════════════════════════════════════════
+                          SUPPORT
+═══════════════════════════════════════════════════════════════════
+
+Bei Fragen: info@afghanfood.de
+
+═══════════════════════════════════════════════════════════════════
