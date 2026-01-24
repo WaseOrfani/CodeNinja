@@ -351,6 +351,98 @@ class AfghanFoodAPITester:
                 auth_required=True
             )
 
+        # Test Blog CRUD operations (NEW FUNCTIONALITY)
+        print("\n   🆕 TESTING BLOG CRUD OPERATIONS")
+        
+        # Test creating a new blog post
+        test_blog_post = {
+            "title": "Test Blog Artikel",
+            "slug": "test-blog-artikel-" + str(int(datetime.now().timestamp())),
+            "excerpt": "Dies ist ein Test-Artikel für die Blog-Funktionalität",
+            "content": "# Test Artikel\n\nDies ist der Inhalt des Test-Artikels.\n\n## Abschnitt 1\n\nHier steht mehr Text.",
+            "image_url": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800",
+            "category": "kultur",
+            "meta_title": "Test Blog Artikel | AfghanFood.de",
+            "meta_description": "Ein Test-Artikel für die Blog-Funktionalität der AfghanFood.de Website",
+            "tags": ["test", "blog", "funktionalität"]
+        }
+        
+        success, created_post = self.run_test(
+            "Create Test Blog Post", 
+            "POST", 
+            "blog", 
+            201, 
+            data=test_blog_post, 
+            auth_required=True
+        )
+        
+        if success and isinstance(created_post, dict) and 'id' in created_post:
+            post_id = created_post['id']
+            print(f"   ✅ Created blog post with ID: {post_id}")
+            
+            # Verify meta fields were auto-generated if not provided
+            if 'meta_title' in created_post:
+                print(f"   ✅ Meta title: {created_post['meta_title']}")
+            if 'meta_description' in created_post:
+                print(f"   ✅ Meta description: {created_post['meta_description'][:50]}...")
+            
+            # Test updating the blog post
+            updated_post = test_blog_post.copy()
+            updated_post['title'] = "Updated Test Blog Artikel"
+            updated_post['meta_title'] = "Updated Test Blog Artikel | AfghanFood.de"
+            
+            self.run_test(
+                "Update Test Blog Post", 
+                "PUT", 
+                f"blog/{post_id}", 
+                200, 
+                data=updated_post, 
+                auth_required=True
+            )
+            
+            # Test deleting the blog post
+            self.run_test(
+                "Delete Test Blog Post", 
+                "DELETE", 
+                f"blog/{post_id}", 
+                200, 
+                auth_required=True
+            )
+        
+        # Test blog post creation without meta fields (should auto-generate)
+        test_blog_minimal = {
+            "title": "Minimal Test Artikel",
+            "slug": "minimal-test-artikel-" + str(int(datetime.now().timestamp())),
+            "excerpt": "Minimaler Test ohne Meta-Felder",
+            "content": "Einfacher Inhalt ohne Meta-Felder",
+            "image_url": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800",
+            "category": "rezept-tipps",
+            "tags": ["minimal", "test"]
+        }
+        
+        success, minimal_post = self.run_test(
+            "Create Blog Post (Auto Meta Fields)", 
+            "POST", 
+            "blog", 
+            201, 
+            data=test_blog_minimal, 
+            auth_required=True
+        )
+        
+        if success and isinstance(minimal_post, dict) and 'id' in minimal_post:
+            post_id = minimal_post['id']
+            print(f"   ✅ Auto-generated meta_title: {minimal_post.get('meta_title', 'N/A')}")
+            print(f"   ✅ Auto-generated meta_description: {minimal_post.get('meta_description', 'N/A')}")
+            
+            # Clean up
+            self.run_test(
+                "Delete Minimal Test Blog Post", 
+                "DELETE", 
+                f"blog/{post_id}", 
+                200, 
+                auth_required=True
+            )
+
     def run_all_tests(self):
         """Run all test suites"""
         print("🚀 Starting AfghanFood.de API Testing Suite")
