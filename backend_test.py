@@ -454,6 +454,8 @@ class AfghanFoodAPITester:
         self.test_auth_endpoints()
         self.test_recipe_endpoints()
         self.test_blog_endpoints()
+        self.test_blog_categories_endpoint()
+        self.test_upload_endpoint()
         self.test_page_endpoints()
         self.test_category_endpoints()
         self.test_sitemap_endpoint()
