@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown, ShoppingBag, Utensils, ShoppingCart, Smartphone } from 'lucide-react';
 import { navLinks, actionButtons } from '../data/mock';
@@ -6,7 +6,9 @@ import { navLinks, actionButtons } from '../data/mock';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const location = useLocation();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +18,16 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const getIcon = (iconName) => {
     switch (iconName) {
       case 'ShoppingBag': return <ShoppingBag className="w-5 h-5" />;
@@ -23,6 +35,10 @@ const Header = () => {
       case 'ShoppingCart': return <ShoppingCart className="w-5 h-5" />;
       default: return null;
     }
+  };
+
+  const handleDropdownToggle = (index) => {
+    setActiveDropdown(activeDropdown === index ? null : index);
   };
 
   return (
@@ -42,7 +58,7 @@ const Header = () => {
               </span>
               <span className="text-4xl font-light text-[#1B4B73] ml-1">grill</span>
             </div>
-            <div className="ml-2 text-xs text-[#E8A54B] uppercase tracking-wider font-medium">
+            <div className="ml-2 text-xs text-[#E8A54B] uppercase tracking-wider font-medium hidden sm:block">
               <span>Mediterranean</span>
               <br />
               <span>Kitchen</span>
@@ -58,7 +74,7 @@ const Header = () => {
             
             {/* Action buttons */}
             <div className="flex space-x-1">
-              {actionButtons.map((btn, index) => (
+              {actionButtons.map((btn) => (
                 <Link
                   key={btn.name}
                   to={btn.link}
@@ -81,19 +97,47 @@ const Header = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="hidden lg:flex items-center justify-center py-2 border-t border-gray-100">
+        <nav className="hidden lg:flex items-center justify-center py-2 border-t border-gray-100" ref={dropdownRef}>
           <ul className="flex items-center space-x-8">
-            {navLinks.map((link) => (
+            {navLinks.map((link, index) => (
               <li key={link.name} className="relative group">
-                <Link
-                  to={link.path}
-                  className={`flex items-center text-sm font-medium tracking-wide transition-colors hover:text-[#E8A54B] ${
-                    location.pathname === link.path ? 'text-[#E8A54B]' : 'text-[#1B4B73]'
-                  }`}
-                >
-                  {link.name}
-                  {link.hasDropdown && <ChevronDown className="w-4 h-4 ml-1" />}
-                </Link>
+                {link.hasDropdown ? (
+                  <>
+                    <button
+                      onClick={() => handleDropdownToggle(index)}
+                      className={`flex items-center text-sm font-medium tracking-wide transition-colors hover:text-[#E8A54B] ${
+                        location.pathname === link.path || location.pathname.startsWith(link.path + '/') ? 'text-[#E8A54B]' : 'text-[#1B4B73]'
+                      }`}
+                    >
+                      {link.name}
+                      <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${activeDropdown === index ? 'rotate-180' : ''}`} />
+                    </button>
+                    {/* Dropdown menu */}
+                    {activeDropdown === index && link.dropdownItems && (
+                      <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50">
+                        {link.dropdownItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            to={item.path}
+                            className="block px-4 py-2 text-sm text-[#1B4B73] hover:bg-gray-50 hover:text-[#E8A54B] transition-colors"
+                            onClick={() => setActiveDropdown(null)}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    to={link.path}
+                    className={`flex items-center text-sm font-medium tracking-wide transition-colors hover:text-[#E8A54B] ${
+                      location.pathname === link.path ? 'text-[#E8A54B]' : 'text-[#1B4B73]'
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                )}
                 {/* Hover underline effect */}
                 <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#E8A54B] transform origin-left transition-transform duration-300 ${
                   location.pathname === link.path ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
@@ -120,6 +164,22 @@ const Header = () => {
                   >
                     {link.name}
                   </Link>
+                  {/* Mobile dropdown items */}
+                  {link.hasDropdown && link.dropdownItems && (
+                    <ul className="ml-4 mt-2 space-y-2">
+                      {link.dropdownItems.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            to={item.path}
+                            className="block text-sm text-gray-600 hover:text-[#E8A54B]"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {item.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>
