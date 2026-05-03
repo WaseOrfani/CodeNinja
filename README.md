@@ -1,50 +1,28 @@
-# ORIA FRESH - E-Commerce Website
+# Hotelprojekt Ziegenkrug – Statische Website
 
-Vollständige, self-hostable E-Commerce-Lösung für einen Food-Shop.
+## Projektstruktur
+- `index.html` – Startseite mit Fokus auf Direktbuchung
+- `hotels/rostock.html` – Standortseite Rostock
+- `hotels/schwerin.html` – Standortseite Schwerin
+- `hotels/pritzwalk.html` – Standortseite Pritzwalk
+- `styles.css` – Zentrales Styling (responsive, mobile first)
+- `script.js` – Kleine Interaktionen (FAQ-Details)
 
-## Tech Stack
+## Lokales Starten
+1. Im Projektordner einen lokalen Webserver starten, z. B.:
+   - Python: `python3 -m http.server 8080`
+2. Im Browser öffnen:
+   - `http://localhost:8080/index.html`
 
-- **Frontend:** React 19, Tailwind CSS, shadcn/ui
-- **Backend:** PHP 8.2, MySQL/MariaDB
-- **Keine externen Abhängigkeiten** - läuft auf jedem Standard-Webhosting
+## Deployment (klassischer Webserver)
+1. Alle Dateien in das Webroot hochladen (inkl. Ordner `hotels`).
+2. Sicherstellen, dass `index.html` im Root liegt.
+3. Domain auf dieses Verzeichnis zeigen lassen (z. B. `www.ziegenkrug.de`).
 
-## Features
+## Buchungslinks pro Standort eintragen
+In allen HTML-Dateien sind Marker hinterlegt, die später ersetzt werden:
+- `BOOKING_LINK_ROSTOCK`
+- `BOOKING_LINK_SCHWERIN`
+- `BOOKING_LINK_PRITZWALK`
 
-- 🍔 Produktkatalog mit Kategorien
-- 🛒 Warenkorb & Checkout
-- 💳 Bestellverwaltung
-- 👨‍💻 Admin-Panel
-- 📱 Mobile-First Design
-- 🔒 JWT-basierte Authentifizierung
-
-## Schnellstart
-
-1. **Datenbank einrichten:**
-   ```bash
-   mysql -u root -p < backend-php/config/001_schema.sql
-   mysql -u root -p < backend-php/config/002_seed_menu.sql
-   ```
-
-2. **Backend konfigurieren:**
-   ```bash
-   cp backend-php/.env.example backend-php/.env
-   # .env bearbeiten mit Ihren Datenbank-Zugangsdaten
-   ```
-
-3. **Frontend bauen:**
-   ```bash
-   cd frontend
-   yarn install
-   yarn build
-   ```
-
-4. **Deployment:** Siehe [DEPLOYMENT.md](DEPLOYMENT.md)
-
-## Admin-Zugang
-
-- **E-Mail:** admin@oriafresh.de
-- **Passwort:** admin123
-
-## Lizenz
-
-Proprietary - ORIA FRESH
+Einfach per Suchen/Ersetzen gegen die echten Buchungs-URLs austauschen.
